@@ -1,7 +1,8 @@
 // src/components/Header.jsx
 import React from "react";
 import "./Header.css";
-import logo from "C:/Škola/JCU/Bakalářská práce/WeekFitter/weekfitter-frontend/src/assets/Logo01.png";
+import Logo from './assets/Logo01.png';
+
 
 const Header = () => {
   return (
