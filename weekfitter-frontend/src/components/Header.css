@@ -1,0 +1,19 @@
+/* src/components/Header.css */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: var(--header-height);
+  padding: 0 20px;
+  background-color: var(--orange-light);
+  color: white;
+}
+
+.header nav a {
+  margin-left: 15px;
+  font-weight: bold;
+}
+
+.logo {
+  height: 40px;
+}

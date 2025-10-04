@@ -1,5 +1,39 @@
-/* src/index.css */
-body {
+/* index.css */
+:root {
+  --orange-light: #FFA500;
+  --orange-dark: #FF8C00;
+  --background-color: #ffffff;
+  --text-color: #333333;
+  --header-height: 60px;
+}
+
+* {
   margin: 0;
-  font-family: Arial, sans-serif;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Arial', sans-serif;
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  background-color: var(--orange-light);
+  color: #fff;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: var(--orange-dark);
 }
