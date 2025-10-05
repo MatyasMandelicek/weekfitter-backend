@@ -1,48 +1,46 @@
 .home-container {
-  min-height: 90vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #ff6a00, #ee0979);
-  color: white;
-  text-align: center;
-  padding: 40px;
+    min-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #ff6a00, #ee0979);
+    color: white;
+    text-align: center;
+    padding: 40px;
 }
 
 .home-logo {
-  width: 150px;
-  height: 150px;
-  margin-bottom: 30px;
-  border-radius: 20%;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    width: 150px;
+    height: 150px;
+    margin-bottom: 30px;
 }
 
 .home-container h1 {
-  font-size: 3rem;
-  margin-bottom: 10px;
-  font-weight: 700;
+    font-size: 3rem;
+    margin-bottom: 10px;
+    font-weight: 700;
 }
 
 .home-container p {
-  font-size: 1.2rem;
-  margin-bottom: 40px;
-  max-width: 600px;
+    font-size: 1.2rem;
+    margin-bottom: 40px;
+    max-width: 600px;
 }
 
 .home-btn {
-  background-color: #fff;
-  color: #ff6a00;
-  border: none;
-  padding: 15px 40px;
-  border-radius: 30px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    background-color: #fff;
+    color: #ff6a00;
+    border: none;
+    padding: 15px 40px;
+    border-radius: 30px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .home-btn:hover {
-  background-color: #ffe2d1;
+    background-color: #ffe2d1;
 }

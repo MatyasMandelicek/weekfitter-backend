@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Header from "../components/Header";
-import Logo from "../assets/Logo01.png";
+import Logo from "../assets/Logo02.png";
 import { useNavigate } from "react-router-dom";
 import "../styles/LoginPage.css";
 

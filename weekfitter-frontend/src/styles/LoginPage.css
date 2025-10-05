@@ -1,63 +1,65 @@
 .login-container {
-  min-height: 90vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #ff6a00, #ee0979);
-  padding: 40px;
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #ff6a00, #ee0979);
+    padding: 40px;
 }
 
 .login-card {
-  background-color: rgba(255, 255, 255, 0.95);
-  padding: 40px;
-  border-radius: 20px;
-  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.2);
-  max-width: 400px;
-  width: 100%;
-  text-align: center;
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
 }
 
 .login-logo {
-  width: 90px;
-  margin-bottom: 20px;
-  border-radius: 50%;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 90px;
+    margin-bottom: 20px;
+    /*border-radius: 50%;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);*/
 }
 
 .login-card h2 {
-  color: #ff6a00;
-  margin-bottom: 20px;
+    color: #ff6a00;
+    margin-bottom: 20px;
 }
 
 .login-card input {
-  width: 100%;
-  padding: 12px 15px;
-  margin-bottom: 15px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  font-size: 1rem;
-  outline: none;
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 1rem;
+    outline: none;
 }
 
 .login-card button {
-  width: 100%;
-  padding: 12px;
-  background-color: #ff6a00;
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+    width: 100%;
+    padding: 12px;
+    background-color: #ff6a00;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 .login-card button:hover {
-  background-color: #e65c00;
+    background-color: #e65c00;
 }
 
 .register-link {
-  color: #ff6a00;
-  cursor: pointer;
-  font-weight: 500;
+    margin-top: 20px;
+    display: inline-block;
+    color: #ff6a00;
+    cursor: pointer;
+    font-weight: 500;
 }
