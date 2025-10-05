@@ -1,20 +1,56 @@
-import React from "react";
+import React, { useState } from "react";
 import Header from "../components/Header";
-import { Link } from "react-router-dom";
+import Logo from "../assets/Logo01.png";
+import { useNavigate } from "react-router-dom";
+import "../styles/LoginPage.css";
 
-function LoginPage() {
+const LoginPage = () => {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({ email: "", password: "" });
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("Přihlášený uživatel:", formData);
+    navigate("/plan");
+  };
+
   return (
-    <div className="p-8">
+    <>
       <Header />
-      <h1 className="text-3xl font-bold mb-4">Login</h1>
-      <form className="flex flex-col max-w-sm">
-        <input type="text" placeholder="Username" className="mb-2 p-2 border"/>
-        <input type="password" placeholder="Password" className="mb-2 p-2 border"/>
-        <button type="submit" className="bg-blue-500 text-white p-2">Login</button>
-      </form>
-      <Link to="/" className="text-blue-500 mt-4 inline-block">Back to Home</Link>
-    </div>
+      <main className="login-container">
+        <div className="login-card">
+          <img src={Logo} alt="Logo" className="login-logo" />
+          <h2>Přihlášení</h2>
+          <form onSubmit={handleSubmit}>
+            <input
+              type="email"
+              name="email"
+              placeholder="E-mail"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+            <input
+              type="password"
+              name="password"
+              placeholder="Heslo"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+            <button type="submit">Přihlásit se</button>
+          </form>
+          <p>
+            Nemáte účet? <span className="register-link">Zaregistrujte se</span>
+          </p>
+        </div>
+      </main>
+    </>
   );
-}
+};
 
 export default LoginPage;

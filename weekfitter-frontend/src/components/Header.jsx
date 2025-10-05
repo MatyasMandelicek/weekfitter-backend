@@ -1,18 +1,31 @@
-// src/components/Header.jsx
 import React from "react";
-import "./Header.css";
-import Logo from './assets/Logo01.png';
-
+import { Link, useNavigate } from "react-router-dom";
+import Logo from "../assets/Logo01.png";
+import "../styles/Header.css";
 
 const Header = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    console.log("Uživatel odhlášen");
+    navigate("/");
+  };
+
   return (
     <header className="header">
-      <img src={logo} alt="Logo" className="logo" />
-      <nav>
-        <a href="/">Home</a>
-        <a href="/login">Login</a>
-        <a href="/plan">Plan</a>
-      </nav>
+      <div className="header-content">
+        <div className="logo-container" onClick={() => navigate("/")}>
+          <img src={Logo} alt="WeekFitter Logo" className="header-logo" />
+          <h2 className="app-name">WeekFitter</h2>
+        </div>
+        <nav className="nav-links">
+          <Link to="/">Domů</Link>
+          <Link to="/plan">Plán</Link>
+          <button onClick={handleLogout} className="logout-btn">
+            Odhlásit se
+          </button>
+        </nav>
+      </div>
     </header>
   );
 };
