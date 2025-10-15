@@ -1,31 +1,31 @@
-package com.weekfitter.controller;
+package com.weekfitter.weekfitter_backend.controller;
 
-import com.weekfitter.model.User;
-import com.weekfitter.service.UserService;
+import com.weekfitter.weekfitter_backend.model.User;
+import com.weekfitter.weekfitter_backend.service.UserService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "*") // povolí komunikaci s Reactem (localhost:3000)
+
 public class UserController {
 
-    private final UserService service;
+    private final UserService userService;
 
-    public UserController(UserService service) {
-        this.service = service;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
-
-    // GET - získání všech uživatelů
+    
     @GetMapping
-    public List<User> getAll() {
-        return service.findAll();
+    public List<User> getAllUsers() {
+        return userService.getAllUsers();
     }
 
-    // POST - registrace nového uživatele
-    @PostMapping("/register")
-    public User register(@RequestBody User user) {
-        return service.create(user);
+    @PostMapping
+    public ResponseEntity<User> createUser(@RequestBody User user) {
+        User savedUser = userService.createUser(user);
+        return ResponseEntity.ok(savedUser);
     }
 }

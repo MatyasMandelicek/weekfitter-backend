@@ -1,4 +1,4 @@
-package com.weekfitter.model;
+package com.weekfitter.weekfitter_backend.model;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,48 +9,28 @@ import java.util.UUID;
 
 @Data
 @Entity
-@Table(name="activities")
+@Table(name = "activities")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Activity {
+
     @Id
-    @GeneratedValue(generator="UUID")
-    @GenericGenerator(name="UUID", strategy = "org.hibernate.id.UuidGenerator")
-    @Column(columnDefinition="uuid")
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Column(name="owner_id", columnDefinition="uuid")
-    private UUID ownerId;
+    @Column(nullable = false)
+    private String name; // Např. "Running", "Cycling"
 
-    private String source;
+    private String description;
 
-    @Column(name="source_external_id")
-    private String sourceExternalId;
+    private int durationMinutes; // délka aktivity
 
-    @Column(name="sport_id")
-    private Integer sportId;
+    private double distanceKm; // u běhu/jízdy na kole
 
-    @Column(name="start_at")
-    private OffsetDateTime startAt;
+    private int caloriesBurned;
 
-    @Column(name="elapsed_sec")
-    private Integer elapsedSec;
-
-    @Column(name="moving_sec")
-    private Integer movingSec;
-
-    @Column(columnDefinition = "jsonb")
-    private String metricsTotal;
-
-    @Column(name="perceived_exertion")
-    private Integer perceivedExertion;
-
-    private String notes;
-
-    @Column(name="matched_training_session_id", columnDefinition="uuid")
-    private UUID matchedTrainingSessionId;
-
-    @Column(columnDefinition = "jsonb")
-    private String gpsData;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 }

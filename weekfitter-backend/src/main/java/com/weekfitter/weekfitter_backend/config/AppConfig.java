@@ -1,4 +1,4 @@
-package com.weekfitter.config;
+package com.weekfitter.weekfitter_backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
