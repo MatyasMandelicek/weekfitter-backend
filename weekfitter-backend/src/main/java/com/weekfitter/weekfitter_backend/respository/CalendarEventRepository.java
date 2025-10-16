@@ -4,6 +4,6 @@ import com.weekfitter.weekfitter_backend.model.CalendarEvent;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
-public interface CalendarEventRepository extends JpaRepository<CalendarEvent, java.util.UUID> {
+public interface CalendarEventRepository extends JpaRepository<CalendarEvent, java.lang.Long> {
     List<CalendarEvent> findByUserId(Long userId);
 }

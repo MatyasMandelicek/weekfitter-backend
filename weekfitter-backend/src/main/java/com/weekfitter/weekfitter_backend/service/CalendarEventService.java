@@ -1,42 +1,25 @@
 package com.weekfitter.weekfitter_backend.service;
 
 import com.weekfitter.weekfitter_backend.model.CalendarEvent;
+import com.weekfitter.weekfitter_backend.respository.CalendarEventRepository;
+
 import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
 public class CalendarEventService {
 
-    private final CalendarEventService repository;
+    private final CalendarEventRepository calendarEventRepository;
 
-    public CalendarEventService(CalendarEventService repository) {
-        this.repository = repository;
+    public CalendarEventService(CalendarEventRepository calendarEventRepository) {
+        this.calendarEventRepository = calendarEventRepository;
     }
 
-    public List<CalendarEvent> getEventsByUser(Long userId) {
-        return repository.findByUserId(userId);
+    public List<CalendarEvent> getAllEvents() {
+        return calendarEventRepository.findAll();
     }
 
-    private List<CalendarEvent> findByUserId(Long userId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByUserId'");
-    }
-
-    public CalendarEvent addEvent(CalendarEvent event) {
-        return repository.save(event);
-    }
-
-    private CalendarEvent save(CalendarEvent event) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'save'");
-    }
-
-    public void deleteEvent(Long id) {
-        repository.deleteById(id);
-    }
-
-    private void deleteById(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteById'");
+    public CalendarEvent saveEvent(CalendarEvent event) {
+        return calendarEventRepository.save(event);
     }
 }

@@ -2,32 +2,30 @@ package com.weekfitter.weekfitter_backend.controller;
 
 import com.weekfitter.weekfitter_backend.model.CalendarEvent;
 import com.weekfitter.weekfitter_backend.service.CalendarEventService;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/events")
-@CrossOrigin(origins = "*")
+
 public class CalendarEventController {
 
-    private final CalendarEventService service;
+    private final CalendarEventService calendarEventService;
 
-    public CalendarEventController(CalendarEventService service) {
-        this.service = service;
+    public CalendarEventController(CalendarEventService calendarEventService) {
+        this.calendarEventService = calendarEventService;
     }
 
-    @GetMapping("/{userId}")
-    public List<CalendarEvent> getEvents(@PathVariable Long userId) {
-        return service.getEventsByUser(userId);
+    @GetMapping
+    public List<CalendarEvent> getAllEvents() {
+        return calendarEventService.getAllEvents();
     }
 
     @PostMapping
-    public CalendarEvent addEvent(@RequestBody CalendarEvent event) {
-        return service.addEvent(event);
-    }
-
-    @DeleteMapping("/{id}")
-    public void deleteEvent(@PathVariable Long id) {
-        service.deleteEvent(id);
+    public CalendarEvent createEvent(@RequestBody CalendarEvent event) {
+        return calendarEventService.saveEvent(event);
     }
 }
+
