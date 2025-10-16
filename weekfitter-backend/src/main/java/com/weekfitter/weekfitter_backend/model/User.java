@@ -2,8 +2,7 @@ package com.weekfitter.weekfitter_backend.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -17,18 +16,19 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String title;
-    private String description;
+    @Column(nullable = false, unique = true)
+    private String email;
 
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+    @Column(nullable = false)
+    private String password;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    private String firstName;
+    private String lastName;
 
-    public void setCreatedAt(OffsetDateTime now) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setCreatedAt'");
-    }
+    // Vztahy
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CalendarEvent> events;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Activity> activities;
 }

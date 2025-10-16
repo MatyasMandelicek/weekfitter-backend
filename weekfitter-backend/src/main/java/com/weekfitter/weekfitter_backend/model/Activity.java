@@ -13,6 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+
 public class Activity {
 
     @Id
@@ -23,14 +24,11 @@ public class Activity {
     private String name; // Např. "Running", "Cycling"
 
     private String description;
-
-    private int durationMinutes; // délka aktivity
-
-    private double distanceKm; // u běhu/jízdy na kole
-
+    private int durationMinutes;
+    private double distanceKm;
     private int caloriesBurned;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 }

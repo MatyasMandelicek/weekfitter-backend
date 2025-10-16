@@ -19,8 +19,11 @@ const Header = () => {
           <h2 className="app-name">WeekFitter</h2>
         </div>
         <nav className="nav-links">
-          <Link to="/">Domů</Link>
-          <Link to="/plan">Plán</Link>
+          <Link to="/home">Domů</Link>
+          <Link to="/login">Přihlášení</Link>
+          <Link to="/calendar">Kalendář</Link>
+          <Link to="/activities">Aktivity</Link>
+          <Link to="/">Profil</Link>
           <button onClick={handleLogout} className="logout-btn">
             Odhlásit se
           </button>

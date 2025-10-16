@@ -2,7 +2,9 @@ package com.weekfitter.weekfitter_backend.controller;
 
 import com.weekfitter.weekfitter_backend.model.Activity;
 import com.weekfitter.weekfitter_backend.service.ActivityService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -10,24 +12,42 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class ActivityController {
 
-    private final ActivityService service;
+    private final ActivityService activityService;
 
-    public ActivityController(ActivityService service) {
-        this.service = service;
+    public ActivityController(ActivityService activityService) {
+        this.activityService = activityService;
     }
 
-    @GetMapping("/{userId}")
-    public List<Activity> getUserActivities(@PathVariable Long userId) {
-        return service.getActivitiesByUser(userId);
+    @GetMapping
+    public List<Activity> getAllActivities() {
+        return activityService.getAllActivities();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Activity> getActivityById(@PathVariable Long id) {
+        return activityService.getActivityById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/user/{userId}")
+    public List<Activity> getActivitiesByUser(@PathVariable Long userId) {
+        return activityService.getActivitiesByUserId(userId);
     }
 
     @PostMapping
-    public Activity addActivity(@RequestBody Activity activity) {
-        return service.addActivity(activity);
+    public Activity createActivity(@RequestBody Activity activity) {
+        return activityService.createActivity(activity);
+    }
+
+    @PutMapping("/{id}")
+    public Activity updateActivity(@PathVariable Long id, @RequestBody Activity activity) {
+        return activityService.updateActivity(id, activity);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteActivity(@PathVariable Long id) {
-        service.deleteActivity(id);
+    public ResponseEntity<Void> deleteActivity(@PathVariable Long id) {
+        activityService.deleteActivity(id);
+        return ResponseEntity.noContent().build();
     }
 }

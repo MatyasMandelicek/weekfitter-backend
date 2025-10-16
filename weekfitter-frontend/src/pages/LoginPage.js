@@ -15,6 +15,10 @@ const LoginPage = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Přihlášený uživatel:", formData);
+    
+    localStorage.setItem("isLoggedIn", "true");
+    localStorage.setItem("userEmail", formData.email);
+
     navigate("/plan");
   };
 
