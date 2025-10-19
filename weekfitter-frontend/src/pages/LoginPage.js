@@ -7,19 +7,40 @@ import "../styles/LoginPage.css";
 const LoginPage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Přihlášený uživatel:", formData);
-    
-    localStorage.setItem("isLoggedIn", "true");
-    localStorage.setItem("userEmail", formData.email);
 
-    navigate("/plan");
+    try {
+      // Pošle přihlašovací údaje na backend
+      const res = await fetch("http://localhost:8080/api/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      // Backend vrací boolean true/false
+      const success = await res.json();
+
+      if (success) {
+        // Uloží info o přihlášení do localStorage
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("userEmail", formData.email);
+
+        console.log("Uživatel přihlášen:", formData.email);
+        navigate("/plan");
+      } else {
+        setErrorMessage("Nesprávný e-mail nebo heslo.");
+      }
+    } catch (error) {
+      console.error("Chyba při přihlašování:", error);
+      setErrorMessage("Server momentálně nedostupný.");
+    }
   };
 
   return (
@@ -46,10 +67,18 @@ const LoginPage = () => {
               onChange={handleChange}
               required
             />
+            {errorMessage && <p className="error-message">{errorMessage}</p>}
             <button type="submit">Přihlásit se</button>
           </form>
           <p>
-            Nemáte účet? <span className="register-link">Zaregistrujte se</span>
+            Nemáte účet?{" "}
+            <span
+              className="register-link"
+              onClick={() => navigate("/register")}
+              style={{ cursor: "pointer" }}
+            >
+              Zaregistrujte se
+            </span>
           </p>
         </div>
       </main>

@@ -1,32 +1,58 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "../assets/Logo03.png";
 import "../styles/Header.css";
 
 const Header = () => {
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  // Zkontroluje, jestli je uživatel přihlášen (uloženo v localStorage)
+  useEffect(() => {
+    const loggedIn = localStorage.getItem("isLoggedIn") === "true";
+    setIsLoggedIn(loggedIn);
+  }, []);
+
+  // Odhlášení
   const handleLogout = () => {
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("userEmail");
+    setIsLoggedIn(false);
     console.log("Uživatel odhlášen");
     navigate("/");
+  };
+
+  // Přihlášení
+  const handleLogin = () => {
+    navigate("/login");
   };
 
   return (
     <header className="header">
       <div className="header-content">
+        {/* Logo vlevo - kliknutí vrací na domovskou stránku */}
         <div className="logo-container" onClick={() => navigate("/")}>
           <img src={Logo} alt="WeekFitter Logo" className="header-logo" />
           <h2 className="app-name">WeekFitter</h2>
         </div>
+
+        {/* Navigace */}
         <nav className="nav-links">
           <Link to="/home">Domů</Link>
-          <Link to="/login">Přihlášení</Link>
           <Link to="/calendar">Kalendář</Link>
           <Link to="/activities">Aktivity</Link>
           <Link to="/">Profil</Link>
-          <button onClick={handleLogout} className="logout-btn">
-            Odhlásit se
-          </button>
+
+          {/* Dynamické tlačítko */}
+          {isLoggedIn ? (
+            <button onClick={handleLogout} className="logout-btn">
+              Odhlásit se
+            </button>
+          ) : (
+            <button onClick={handleLogin} className="login-btn">
+              Přihlásit se
+            </button>
+          )}
         </nav>
       </div>
     </header>

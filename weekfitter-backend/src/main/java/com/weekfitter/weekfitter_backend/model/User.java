@@ -2,7 +2,7 @@ package com.weekfitter.weekfitter_backend.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.util.List;
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -16,19 +16,18 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private String firstName;
+
+    @Column(nullable = false)
+    private String lastName;
+
     @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false)
     private String password;
 
-    private String firstName;
-    private String lastName;
-
-    // Vztahy
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CalendarEvent> events;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Activity> activities;
+    private LocalDate birthDate;
+    private String profilePicture; // uložíme cestu nebo URL fotky
 }

@@ -67,3 +67,12 @@
     cursor: pointer;
     font-weight: 500;
 }
+
+.error-message {
+  color: #ffcccc;
+  background-color: rgba(255, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
