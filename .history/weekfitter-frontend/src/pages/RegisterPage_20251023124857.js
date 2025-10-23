@@ -53,11 +53,11 @@ const RegisterPage = () => {
         setSuccessMessage("Registrace proběhla úspěšně!");
         setTimeout(() => navigate("/login"), 2000);
       } else {
-        setErrorMessage("Chyba při registraci, zkuste to znovu.");
+        setErrorMessage("❌ Chyba při registraci, zkuste to znovu.");
       }
     } catch (error) {
       console.error("Chyba při registraci:", error);
-      setErrorMessage("Server je momentálně nedostupný.");
+      setErrorMessage("⚠️ Server je momentálně nedostupný.");
     } finally {
       setLoading(false);
     }

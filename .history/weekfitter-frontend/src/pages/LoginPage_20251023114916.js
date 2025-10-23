@@ -39,7 +39,7 @@ const LoginPage = () => {
         setErrorMessage("Nesprávný e-mail nebo heslo.");
       }
     } catch (error) {
-      console.error("Chyba při přihlašování:", error);
+      console.error("❗ Chyba při přihlašování:", error);
       setErrorMessage("Server momentálně nedostupný.");
     } finally {
       setLoading(false);

@@ -99,7 +99,7 @@
   animation: fadeIn 0.3s ease-in-out;
 }
 
-/* ÚSPĚŠNÁ HLÁŠKA */
+/* 🟢 ÚSPĚŠNÁ HLÁŠKA */
 .success-message {
   color: #ffffff;
   background-color: #2e7d32;

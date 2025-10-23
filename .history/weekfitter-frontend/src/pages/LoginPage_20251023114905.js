@@ -33,14 +33,14 @@ const LoginPage = () => {
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("userEmail", formData.email);
 
-        console.log("Uživatel přihlášen:", formData.email);
+        console.log("✅ Uživatel přihlášen:", formData.email);
         navigate("/home");
       } else {
-        setErrorMessage("Nesprávný e-mail nebo heslo.");
+        setErrorMessage("❌ Nesprávný e-mail nebo heslo.");
       }
     } catch (error) {
-      console.error("Chyba při přihlašování:", error);
-      setErrorMessage("Server momentálně nedostupný.");
+      console.error("❗ Chyba při přihlašování:", error);
+      setErrorMessage("⚠️ Server momentálně nedostupný.");
     } finally {
       setLoading(false);
     }
