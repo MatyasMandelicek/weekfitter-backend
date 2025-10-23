@@ -99,7 +99,7 @@ p, span, label {
 img {
   max-width: 100%;
   height: auto;
-  display: center;
+  display: blcock;
 }
 
 /* Flexbox vycentrování pro hlavní stránky (login, register) */
