@@ -18,6 +18,7 @@ const localizer = dateFnsLocalizer({
 const CalendarPage = () => {
   const [events, setEvents] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -75,6 +76,7 @@ const CalendarPage = () => {
 
   // Kliknutí na den/časový úsek → otevře formulář
   const handleSelectSlot = (slotInfo) => {
+    setSelectedSlot(slotInfo);
     setFormData({
       title: "",
       description: "",

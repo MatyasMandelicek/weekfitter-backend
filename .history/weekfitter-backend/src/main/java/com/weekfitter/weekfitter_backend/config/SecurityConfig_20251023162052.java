@@ -13,20 +13,19 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // REST API nepotřebuje CSRF
+                .csrf(csrf -> csrf.disable()) // pro REST API CSRF nepotřebujeme
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/users/register",
                                 "/api/users/login",
                                 "/api/users/forgot-password",
                                 "/api/users/reset-password",
-                                "/api/events/**", // povolit přístup ke kalendáři
                                 "/error"
-                        ).permitAll()
-                        .anyRequest().authenticated() // ostatní požadavky vyžadují login
+                        ).permitAll() // tyto endpointy budou veřejné
+                        .anyRequest().authenticated() // ostatní vyžadují přihlášení
                 )
-                .formLogin(form -> form.disable())
-                .httpBasic(basic -> basic.disable());
+                .formLogin(form -> form.disable()) // nepoužíváme defaultní login form
+                .httpBasic(basic -> basic.disable()); // ani základní auth
 
         return http.build();
     }

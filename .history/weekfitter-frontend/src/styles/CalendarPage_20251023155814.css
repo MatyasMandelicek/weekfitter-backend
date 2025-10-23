@@ -53,7 +53,7 @@
 .rbc-off-range-bg {
   background-color: #f0f0f0 !important;
 }
-
+/* === Modal okno === */
 .modal-overlay {
   position: fixed;
   top: 0;

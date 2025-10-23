@@ -38,7 +38,8 @@ public class CalendarEvent {
         return this.activityType;
     }
 
-    public void setCategory(ActivityType activityType) {
-        this.activityType = activityType;
+    public void setCategory(Object category) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setCategory'");
     }
 }

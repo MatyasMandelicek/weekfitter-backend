@@ -38,7 +38,7 @@ public class CalendarEvent {
         return this.activityType;
     }
 
-    public void setCategory(ActivityType activityType) {
-        this.activityType = activityType;
+    public void setCategory(ActivityType activityTypecategory) {
+        this
     }
 }

@@ -18,6 +18,7 @@ const localizer = dateFnsLocalizer({
 const CalendarPage = () => {
   const [events, setEvents] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -26,7 +27,7 @@ const CalendarPage = () => {
     category: "SPORT",
   });
 
-  // Načtení událostí z backendu
+  // 🔹 Načtení událostí z backendu
   useEffect(() => {
     fetch("http://localhost:8080/api/events")
       .then((res) => res.json())
@@ -44,7 +45,7 @@ const CalendarPage = () => {
       .catch((err) => console.error("Chyba při načítání událostí:", err));
   }, []);
 
-  // Stylování událostí podle typu
+  // 🔹 Stylování událostí podle typu
   const getEventStyle = (event) => {
     let bgColor = "#ff6a00";
     switch (event.category) {
@@ -73,8 +74,9 @@ const CalendarPage = () => {
     };
   };
 
-  // Kliknutí na den/časový úsek → otevře formulář
+  // 🔸 Kliknutí na den/časový úsek → otevře formulář
   const handleSelectSlot = (slotInfo) => {
+    setSelectedSlot(slotInfo);
     setFormData({
       title: "",
       description: "",
@@ -85,7 +87,7 @@ const CalendarPage = () => {
     setShowModal(true);
   };
 
-  // Odeslání nové události
+  // 🔸 Odeslání nové události
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -132,7 +134,7 @@ const CalendarPage = () => {
             }}
           />
 
-          {/* Modální okno */}
+          {/* 🟠 Modální okno */}
           {showModal && (
             <div className="modal-overlay">
               <div className="modal-content">

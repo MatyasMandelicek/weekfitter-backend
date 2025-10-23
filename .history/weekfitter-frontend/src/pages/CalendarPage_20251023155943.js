@@ -75,6 +75,7 @@ const CalendarPage = () => {
 
   // Kliknutí na den/časový úsek → otevře formulář
   const handleSelectSlot = (slotInfo) => {
+    setSelectedSlot(slotInfo);
     setFormData({
       title: "",
       description: "",

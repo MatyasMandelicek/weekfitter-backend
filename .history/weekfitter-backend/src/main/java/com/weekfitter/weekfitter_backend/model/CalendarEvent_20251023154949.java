@@ -33,12 +33,4 @@ public class CalendarEvent {
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
-
-    public ActivityType getCategory() {
-        return this.activityType;
-    }
-
-    public void setCategory(ActivityType activityType) {
-        this.activityType = activityType;
-    }
 }

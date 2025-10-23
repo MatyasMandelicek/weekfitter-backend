@@ -2,6 +2,7 @@ package com.weekfitter.weekfitter_backend.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -20,7 +21,7 @@ public class CalendarEvent {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ActivityType activityType;
-
+    
     @Column(nullable = false)
     private String title;
 
@@ -33,12 +34,4 @@ public class CalendarEvent {
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
-
-    public ActivityType getCategory() {
-        return this.activityType;
-    }
-
-    public void setCategory(ActivityType activityType) {
-        this.activityType = activityType;
-    }
 }
