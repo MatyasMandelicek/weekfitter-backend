@@ -6,9 +6,6 @@ import ActivityPage from "./pages/ActivityPage";
 import CalendarPage from "./pages/CalendarPage";
 import RegisterPage from "./pages/RegisterPage";
 import ProtectedRoute from "./components/ProtectedRoute";
-import ForgotPasswordPage from "./pages/ForgotPasswordPage";
-import ResetPasswordPage from "./pages/ResetPasswordPage";
-
 
 
 function App() {

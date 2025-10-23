@@ -13,7 +13,7 @@ const LoginPage = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Zobrazí hlášku z ResetPasswordPage
+  // ✅ Zobrazí hlášku z ResetPasswordPage
   useEffect(() => {
     if (location.state?.successMessage) {
       setSuccessMessage(location.state.successMessage);

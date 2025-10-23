@@ -2,9 +2,6 @@ package com.weekfitter.weekfitter_backend.controller;
 
 import com.weekfitter.weekfitter_backend.model.User;
 import com.weekfitter.weekfitter_backend.service.UserService;
-
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,9 +26,9 @@ public class UserController {
 
     @PostMapping("/forgot-password")
     public ResponseEntity<String> forgotPassword(@RequestBody Map<String, String> request) {
-        String email = request.get("email");
-        userService.generatePasswordResetToken(email);
-        return ResponseEntity.ok("Pokud e-mail existuje, byl odeslán odkaz pro obnovení hesla.");
+    String email = request.get("email");
+    userService.generatePasswordResetToken(email);
+    return ResponseEntity.ok("Pokud e-mail existuje, byl odeslán odkaz pro obnovení hesla.");
     }
 
     @PostMapping("/reset-password")

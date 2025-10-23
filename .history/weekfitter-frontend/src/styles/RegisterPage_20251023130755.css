@@ -1,19 +1,22 @@
-.login-container {
-  min-height: 100vh;
+.login-container,
+.register-container {
+  height: 100vh;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: 
+  background:
     linear-gradient(135deg, rgba(255, 106, 0, 0.95), rgba(238, 9, 121, 0.95)),
     url("../assets/Triathlon.png");
   background-size: cover;
-  background-position: center 49%;
+  background-position: center;
   background-repeat: no-repeat;
   background-blend-mode: overlay;
-  padding: 40px;
+  padding: 0 20px;
 }
 
-.login-card {
+
+.register-card {
   background-color: rgba(255, 255, 255, 0.95);
   padding: 40px;
   border-radius: 20px;
@@ -23,17 +26,17 @@
   text-align: center;
 }
 
-.login-logo {
+.register-logo {
   width: 90px;
   margin-bottom: 20px;
 }
 
-.login-card h2 {
+.register-card h2 {
   color: #ff6a00;
   margin-bottom: 20px;
 }
 
-.login-card input {
+.register-card input {
   width: 100%;
   padding: 12px 15px;
   margin-bottom: 15px;
@@ -44,12 +47,12 @@
   transition: border 0.2s ease;
 }
 
-.login-card input:focus {
+.register-card input:focus {
   border-color: #ff6a00;
   box-shadow: 0 0 5px rgba(255, 106, 0, 0.3);
 }
 
-.login-card button {
+.register-card button {
   width: 100%;
   padding: 12px;
   background-color: #ff6a00;
@@ -62,16 +65,16 @@
   transition: background-color 0.3s ease;
 }
 
-.login-card button:hover {
+.register-card button:hover {
   background-color: #e65c00;
 }
 
-.login-card button:disabled {
+.register-card button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
 }
 
-.register-link {
+.login-link {
   margin-top: 20px;
   display: inline-block;
   color: #ff6a00;
@@ -80,17 +83,17 @@
   transition: color 0.3s ease;
 }
 
-.register-link:hover {
+.login-link:hover {
   color: #e65c00;
 }
 
-.success-message {
+/* CHYBOVÁ HLÁŠKA */
+.error-message {
   color: #ffffff;
-  background-color: #2e7d32;
+  background-color: #cc0000;
   border: none;
   border-radius: 10px;
   padding: 12px 15px;
-  margin-top: 15px;
   margin-bottom: 15px;
   font-weight: 600;
   text-align: center;
@@ -99,39 +102,22 @@
   animation: fadeIn 0.3s ease-in-out;
 }
 
-.error-message {
-  position: relative;
-  z-index: 9999;
-  color: #ffffff !important;
-  background-color: #cc0000 !important;
-  border-radius: 8px !important;
-  padding: 12px 15px !important;
-  margin-bottom: 18px !important;
-  font-weight: 700 !important;
-  text-align: center !important;
-  font-size: 1rem !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
-  animation: fadeIn 0.3s ease-in-out !important;
-  opacity: 1 !important;
-  visibility: visible !important;
+/* ÚSPĚŠNÁ HLÁŠKA */
+.success-message {
+  color: #ffffff;
+  background-color: #2e7d32;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  font-weight: 600;
+  text-align: center;
+  font-size: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  animation: fadeIn 0.3s ease-in-out;
 }
 
-.forgot-password-link {
-  color: #ff6a00;
-  font-size: 0.95rem;
-  margin-bottom: 12px;
-  text-align: right;
-  cursor: pointer;
-  font-weight: 500;
-  transition: color 0.3s ease;
-}
-
-.forgot-password-link:hover {
-  color: #e65c00;
-  text-decoration: underline;
-}
-
-
+/* Efekt pro zobrazení hlášek */
 @keyframes fadeIn {
   from {
     opacity: 0;

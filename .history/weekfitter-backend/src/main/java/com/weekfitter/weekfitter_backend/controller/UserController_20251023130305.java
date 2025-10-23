@@ -2,9 +2,6 @@ package com.weekfitter.weekfitter_backend.controller;
 
 import com.weekfitter.weekfitter_backend.model.User;
 import com.weekfitter.weekfitter_backend.service.UserService;
-
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

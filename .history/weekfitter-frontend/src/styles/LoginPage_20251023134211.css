@@ -84,21 +84,7 @@
   color: #e65c00;
 }
 
-.success-message {
-  color: #ffffff;
-  background-color: #2e7d32;
-  border: none;
-  border-radius: 10px;
-  padding: 12px 15px;
-  margin-top: 15px;
-  margin-bottom: 15px;
-  font-weight: 600;
-  text-align: center;
-  font-size: 1rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  animation: fadeIn 0.3s ease-in-out;
-}
-
+/* ERROR MESSAGE */
 .error-message {
   position: relative;
   z-index: 9999;
@@ -116,20 +102,6 @@
   visibility: visible !important;
 }
 
-.forgot-password-link {
-  color: #ff6a00;
-  font-size: 0.95rem;
-  margin-bottom: 12px;
-  text-align: right;
-  cursor: pointer;
-  font-weight: 500;
-  transition: color 0.3s ease;
-}
-
-.forgot-password-link:hover {
-  color: #e65c00;
-  text-decoration: underline;
-}
 
 
 @keyframes fadeIn {

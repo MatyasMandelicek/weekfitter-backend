@@ -13,7 +13,7 @@ const LoginPage = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Zobrazí hlášku z ResetPasswordPage
+  // ✅ Zobrazí hlášku z ResetPasswordPage
   useEffect(() => {
     if (location.state?.successMessage) {
       setSuccessMessage(location.state.successMessage);
@@ -66,7 +66,7 @@ const LoginPage = () => {
           <img src={Logo} alt="Logo" className="login-logo" />
           <h2>Přihlášení</h2>
 
-          {/* Hláška o úspěšném resetu hesla */}
+          {/* ✅ Hláška o úspěšném resetu hesla */}
           {successMessage && <div className="success-message">{successMessage}</div>}
 
           <form onSubmit={handleSubmit}>

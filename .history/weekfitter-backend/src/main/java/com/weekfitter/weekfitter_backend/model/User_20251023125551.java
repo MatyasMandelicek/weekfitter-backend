@@ -36,9 +36,9 @@ public class User {
     private String photo;
 
     @Column(name = "reset_token")
-    private String resetToken;
+private String resetToken;
 
-    @Column(name = "token_expiration")
-    private LocalDateTime tokenExpiration;
+@Column(name = "token_expiration")
+private LocalDateTime tokenExpiration;
 
 }

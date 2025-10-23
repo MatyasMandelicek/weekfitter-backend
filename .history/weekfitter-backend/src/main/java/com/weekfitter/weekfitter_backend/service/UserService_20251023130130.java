@@ -15,8 +15,6 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
     private EmailService emailService;
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -62,5 +60,5 @@ public class UserService {
             }
         }
         return false;
-    }
+
 }

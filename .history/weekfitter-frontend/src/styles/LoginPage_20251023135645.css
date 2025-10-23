@@ -90,7 +90,6 @@
   border: none;
   border-radius: 10px;
   padding: 12px 15px;
-  margin-top: 15px;
   margin-bottom: 15px;
   font-weight: 600;
   text-align: center;
@@ -119,7 +118,7 @@
 .forgot-password-link {
   color: #ff6a00;
   font-size: 0.95rem;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   text-align: right;
   cursor: pointer;
   font-weight: 500;

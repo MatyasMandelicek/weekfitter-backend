@@ -50,7 +50,7 @@ const RegisterPage = () => {
       });
 
       if (res.ok) {
-        await res.json();
+        const = await res.json();
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("userEmail", formData.email);
         setSuccessMessage("Registrace proběhla úspěšně! Přihlašuji...");

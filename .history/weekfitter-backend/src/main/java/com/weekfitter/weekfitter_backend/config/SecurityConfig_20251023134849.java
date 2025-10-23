@@ -21,7 +21,7 @@ public class SecurityConfig {
                                 "/api/users/forgot-password",
                                 "/api/users/reset-password",
                                 "/error"
-                        ).permitAll() // tyto endpointy budou veřejné
+                        ).permitAll() // ✅ tyto endpointy budou veřejné
                         .anyRequest().authenticated() // ostatní vyžadují přihlášení
                 )
                 .formLogin(form -> form.disable()) // nepoužíváme defaultní login form

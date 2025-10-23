@@ -15,9 +15,7 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private EmailService emailService;
+    private final EmailService emailService;
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -34,33 +32,33 @@ public class UserService {
         return false;
     }
 
-    // Generuje reset token a pošle e-mail
     public void generatePasswordResetToken(String email) {
-        Optional<User> userOpt = userRepository.findByEmail(email);
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            String token = UUID.randomUUID().toString();
-            user.setResetToken(token);
-            user.setTokenExpiration(LocalDateTime.now().plusHours(1));
+    Optional<User> userOpt = userRepository.findByEmail(email);
+    if (userOpt.isPresent()) {
+        User user = userOpt.get();
+        String token = UUID.randomUUID().toString();
+        user.setResetToken(token);
+        user.setTokenExpiration(LocalDateTime.now().plusHours(1));
+        userRepository.save(user);
+
+        // zde pošli e-mail
+        emailService.sendPasswordResetEmail(user.getEmail(), token);
+    }
+}
+
+public boolean resetPassword(String token, String newPassword) {
+    Optional<User> userOpt = userRepository.findByResetToken(token);
+    if (userOpt.isPresent()) {
+        User user = userOpt.get();
+        if (user.getTokenExpiration().isAfter(LocalDateTime.now())) {
+            user.setPassword(passwordEncoder.encode(newPassword));
+            user.setResetToken(null);
+            user.setTokenExpiration(null);
             userRepository.save(user);
-
-            emailService.sendPasswordResetEmail(user.getEmail(), token);
+            return true;
         }
     }
+    return false;
+}
 
-    // Resetuje heslo podle tokenu
-    public boolean resetPassword(String token, String newPassword) {
-        Optional<User> userOpt = userRepository.findByResetToken(token);
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            if (user.getTokenExpiration().isAfter(LocalDateTime.now())) {
-                user.setPassword(passwordEncoder.encode(newPassword));
-                user.setResetToken(null);
-                user.setTokenExpiration(null);
-                userRepository.save(user);
-                return true;
-            }
-        }
-        return false;
-    }
 }

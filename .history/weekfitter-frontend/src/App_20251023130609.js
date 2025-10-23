@@ -6,9 +6,6 @@ import ActivityPage from "./pages/ActivityPage";
 import CalendarPage from "./pages/CalendarPage";
 import RegisterPage from "./pages/RegisterPage";
 import ProtectedRoute from "./components/ProtectedRoute";
-import ForgotPasswordPage from "./pages/ForgotPasswordPage";
-import ResetPasswordPage from "./pages/ResetPasswordPage";
-
 
 
 function App() {
@@ -19,7 +16,7 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />  
 
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+<Route path="/reset-password/:token" element={<ResetPasswordPage />} />
   
 
         <Route path="/" element={<ProtectedRoute element={<HomePage />} />} />

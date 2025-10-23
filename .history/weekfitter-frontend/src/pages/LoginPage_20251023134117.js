@@ -1,38 +1,24 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Header from "../components/Header";
 import Logo from "../assets/Logo02.png";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "../styles/LoginPage.css";
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
-
-  // Zobrazí hlášku z ResetPasswordPage
-  useEffect(() => {
-    if (location.state?.successMessage) {
-      setSuccessMessage(location.state.successMessage);
-      // vyčistí state, aby se hláška nezobrazila při návratu zpět
-      navigate(location.pathname, { replace: true });
-    }
-  }, [location, navigate]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setErrorMessage("");
-    setSuccessMessage("");
+    setErrorMessage(""); // smaže chybu při psaní
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setErrorMessage("");
-    setSuccessMessage("");
 
     try {
       const res = await fetch("http://localhost:8080/api/users/login", {
@@ -46,6 +32,8 @@ const LoginPage = () => {
       if (success) {
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("userEmail", formData.email);
+
+        console.log("Uživatel přihlášen:", formData.email);
         navigate("/home");
       } else {
         setErrorMessage("Nesprávný e-mail nebo heslo.");
@@ -66,9 +54,6 @@ const LoginPage = () => {
           <img src={Logo} alt="Logo" className="login-logo" />
           <h2>Přihlášení</h2>
 
-          {/* Hláška o úspěšném resetu hesla */}
-          {successMessage && <div className="success-message">{successMessage}</div>}
-
           <form onSubmit={handleSubmit}>
             <input
               type="email"
@@ -87,6 +72,7 @@ const LoginPage = () => {
               required
             />
 
+            {/* 🔹 Nový odkaz na reset hesla */}
             <div
               className="forgot-password-link"
               onClick={() => navigate("/forgot-password")}
@@ -94,7 +80,9 @@ const LoginPage = () => {
               Zapomenuté heslo?
             </div>
 
-            {errorMessage && <div className="error-message">{errorMessage}</div>}
+            {errorMessage && (
+              <div className="error-message">{errorMessage}</div>
+            )}
 
             <button type="submit" disabled={loading}>
               {loading ? "Přihlašuji..." : "Přihlásit se"}

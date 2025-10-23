@@ -50,10 +50,10 @@ const RegisterPage = () => {
       });
 
       if (res.ok) {
-        await res.json();
+        const data = await res.json();
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("userEmail", formData.email);
-        setSuccessMessage("Registrace proběhla úspěšně! Přihlašuji...");
+        setSuccessMessage("✅ Registrace proběhla úspěšně! Přihlašuji...");
         setTimeout(() => navigate("/home"), 1500);
       } else {
         setErrorMessage("Chyba při registraci, zkuste to znovu.");
