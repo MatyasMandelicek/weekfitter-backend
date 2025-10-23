@@ -17,7 +17,7 @@
 html, body {
   height: 100%;
   width: 100%;
-  overflow-x: hidden;   /* žádný horizontální posuvník */
+  overflow-x: hidden;   /* ❌ žádný horizontální posuvník */
   overflow-y: auto;     /* vertikální scroll jen při potřebě */
   scroll-behavior: smooth;
   background-color: var(--background-color);

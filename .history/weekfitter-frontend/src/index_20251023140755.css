@@ -1,3 +1,6 @@
+/* ==============================
+   🎨 Globální proměnné
+============================== */
 :root {
   --orange-light: #FFA500;
   --orange-dark: #FF8C00;
@@ -6,7 +9,9 @@
   --header-height: 60px;
 }
 
-
+/* ==============================
+   🔧 Reset a základy
+============================== */
 * {
   margin: 0;
   padding: 0;
@@ -17,14 +22,16 @@
 html, body {
   height: 100%;
   width: 100%;
-  overflow-x: hidden;   /* žádný horizontální posuvník */
-  overflow-y: auto;     /* vertikální scroll jen při potřebě */
+  overflow-x: hidden;   /* ❌ žádný horizontální posuvník */
+  overflow-y: auto;     /* ✅ vertikální scroll jen při potřebě */
   scroll-behavior: smooth;
   background-color: var(--background-color);
   color: var(--text-color);
 }
 
-
+/* ==============================
+   🧭 Obecné elementy
+============================== */
 a {
   text-decoration: none;
   color: inherit;
@@ -52,15 +59,14 @@ button:hover {
     padding: 40px;
   }
 }
-
-/* Notebooky a tablety na šířku */
+/* 💻 Notebooky a tablety na šířku */
 @media (max-width: 1024px) {
   main {
     padding: 30px;
   }
 }
 
-/* Telefony (na výšku) */
+/* 📱 Telefony (na výšku) */
 @media (max-width: 768px) {
   main {
     padding: 20px;
@@ -72,7 +78,7 @@ button:hover {
   }
 }
 
-/* Menší telefony (např. iPhone SE) */
+/* 📱 Menší telefony (např. iPhone SE) */
 @media (max-width: 480px) {
   main {
     padding: 15px;
