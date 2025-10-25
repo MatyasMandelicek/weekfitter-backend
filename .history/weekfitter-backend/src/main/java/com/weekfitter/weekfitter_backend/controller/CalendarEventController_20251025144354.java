@@ -32,22 +32,22 @@ public class CalendarEventController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createEvent(@RequestBody CalendarEvent event) {
+    public ResponseEntity<CalendarEvent> createEvent(@RequestBody CalendarEvent event) {
         try {
             CalendarEvent saved = calendarEventService.createEvent(event);
             return ResponseEntity.ok(saved);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateEvent(@PathVariable UUID id, @RequestBody CalendarEvent event) {
+    public ResponseEntity<CalendarEvent> updateEvent(@PathVariable UUID id, @RequestBody CalendarEvent event) {
         try {
             CalendarEvent updated = calendarEventService.updateEvent(id, event);
             return ResponseEntity.ok(updated);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
     }
 

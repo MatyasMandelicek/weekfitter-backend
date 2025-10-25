@@ -21,7 +21,7 @@ public class SecurityConfig {
                                 "/api/users/forgot-password",
                                 "/api/users/reset-password",
                                 "/api/events/**", // povolit přístup ke kalendáři
-                                "/api/files/**",
+                                ""
                                 "/error"
                         ).permitAll()
                         .anyRequest().authenticated() // ostatní požadavky vyžadují login

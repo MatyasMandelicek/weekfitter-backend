@@ -42,7 +42,7 @@ public class CalendarEvent {
     private String sportDescription;
 
     @Column(name = "file_path")
-    private String filePath; // uložený GPX/JSON soubor
+    private String filePath; // 🆕 uložený GPX/JSON soubor
 
     @ManyToOne(optional = true)
     @JoinColumn(name = "user_id", referencedColumnName = "id")

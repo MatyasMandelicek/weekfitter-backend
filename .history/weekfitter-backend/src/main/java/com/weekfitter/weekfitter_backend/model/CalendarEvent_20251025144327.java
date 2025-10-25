@@ -20,40 +20,29 @@ public class CalendarEvent {
     @Column(nullable = false)
     private String title;
 
+    @Column
     private String description;
 
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "activity_type", nullable = false)
+    @Column(nullable = false)
     private ActivityType category;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "sport_type")
-    private SportType sportType;   // typ sportu (běh, kolo, plavání, jiné)
-
-    @Column(name = "all_day")
     private boolean allDay;
 
+    // Sportovní atributy (nepovinné)
+    @Column(nullable = true)
     private Double duration;
+
+    @Column(nullable = true)
     private Double distance;
 
+    @Column(nullable = true)
     private String sportDescription;
-
-    @Column(name = "file_path")
-    private String filePath; // uložený GPX/JSON soubor
 
     @ManyToOne(optional = true)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
-
-    @PrePersist
-    @PreUpdate
-    private void applyDefaults() {
-        if (category == null) category = ActivityType.OTHER;
-        if (startTime != null && endTime == null) endTime = startTime.plusMinutes(30);
-        if (startTime != null && endTime != null && endTime.isBefore(startTime))
-            endTime = startTime.plusMinutes(30);
-    }
 }

@@ -38,15 +38,6 @@ public class CalendarEventService {
 
     public CalendarEvent createEvent(CalendarEvent event) {
         if (event.getCategory() == null) event.setCategory(ActivityType.OTHER);
-        if (event.getTitle() == null || event.getTitle().isBlank())
-            throw new RuntimeException("Title is required");
-
-        if (event.getDuration() != null && event.getStartTime() != null) {
-            event.setEndTime(event.getStartTime().plusMinutes(event.getDuration().longValue()));
-        }
-
-        // DŮLEŽITÉ: necháme projít sportType a filePath, pokud přišly
-        // (žádná další logika není potřeba)
         return calendarEventRepository.save(event);
     }
 
@@ -56,29 +47,13 @@ public class CalendarEventService {
                     event.setTitle(updatedEvent.getTitle());
                     event.setDescription(updatedEvent.getDescription());
                     event.setStartTime(updatedEvent.getStartTime());
-
-                    if (updatedEvent.getDuration() != null && updatedEvent.getStartTime() != null) {
-                        event.setEndTime(updatedEvent.getStartTime().plusMinutes(updatedEvent.getDuration().longValue()));
-                    } else {
-                        event.setEndTime(updatedEvent.getEndTime());
-                    }
-
-                    event.setCategory(updatedEvent.getCategory() != null ? updatedEvent.getCategory() : ActivityType.OTHER);
-                    event.setAllDay(updatedEvent.isAllDay());
-                    event.setDuration(updatedEvent.getDuration());
-                    event.setDistance(updatedEvent.getDistance());
-                    event.setSportDescription(updatedEvent.getSportDescription());
-
-                    // DŮLEŽITÉ: doplnit chybějící pole
-                    event.setSportType(updatedEvent.getSportType());
-                    event.setFilePath(updatedEvent.getFilePath());
-
+                    event.setEndTime(updatedEvent.getEndTime());
+                    event.setCategory(updatedEvent.getCategory());
                     event.setUser(updatedEvent.getUser());
                     return calendarEventRepository.save(event);
                 })
                 .orElseThrow(() -> new RuntimeException("Event not found"));
     }
-
 
     public void deleteEvent(UUID id) {
         calendarEventRepository.deleteById(id);

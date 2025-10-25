@@ -31,7 +31,7 @@ public class CalendarEvent {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "sport_type")
-    private SportType sportType;   // typ sportu (běh, kolo, plavání, jiné)
+    private SportType sportType;   // 🆕 typ sportu (běh, kolo, plavání, jiné)
 
     @Column(name = "all_day")
     private boolean allDay;
@@ -41,8 +41,7 @@ public class CalendarEvent {
 
     private String sportDescription;
 
-    @Column(name = "file_path")
-    private String filePath; // uložený GPX/JSON soubor
+    private String filePath; // 🆕 uložený GPX/JSON soubor
 
     @ManyToOne(optional = true)
     @JoinColumn(name = "user_id", referencedColumnName = "id")

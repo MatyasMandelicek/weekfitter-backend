@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
-import { format, parse, startOfWeek, getDay, addMinutes } from "date-fns";
+import { format, parse, startOfWeek, getDay, addMinutes,} from "date-fns";
 import { cs } from "date-fns/locale";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import Header from "../components/Header";
@@ -87,7 +87,7 @@ const CalendarPage = () => {
     let start = slotInfo.start;
     let end;
 
-    // Pokud jsem v měsíčním pohledu, nastav výchozí čas 8:00–8:30
+    // 🔸 Pokud jsem v měsíčním pohledu, nastav výchozí čas 8:00–8:30
     if (view === "month") {
       start = new Date(
         start.getFullYear(),
@@ -173,26 +173,6 @@ const CalendarPage = () => {
     }
   };
 
-  // === Nové: Při změně začátku a existujícím trvání přepočítej konec ===
-  const handleStartChange = (e) => {
-    const newStart = new Date(e.target.value);
-
-    if (formData.duration && !isNaN(parseInt(formData.duration))) {
-      const minutes = parseInt(formData.duration);
-      const newEnd = addMinutes(newStart, minutes);
-      setFormData((prev) => ({
-        ...prev,
-        start: format(newStart, "yyyy-MM-dd'T'HH:mm"),
-        end: format(newEnd, "yyyy-MM-dd'T'HH:mm"),
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        start: format(newStart, "yyyy-MM-dd'T'HH:mm"),
-      }));
-    }
-  };
-
   // === Odeslání formuláře ===
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -223,22 +203,15 @@ const CalendarPage = () => {
 
     const payload = {
       title: formData.title,
-      description:
-        formData.category === "SPORT"
-          ? formData.sportDescription
-          : formData.description,
+      description: formData.category === "SPORT" ? formData.sportDescription : formData.description,
       startTime: formData.start,
       endTime: formData.end,
       category: formData.category,
       allDay: formData.category !== "SPORT" ? formData.allDay : false,
-      duration:
-        formData.category === "SPORT" ? Number(formData.duration) : null,
-      distance:
-        formData.category === "SPORT" ? Number(formData.distance) : null,
-      sportDescription:
-        formData.category === "SPORT" ? formData.sportDescription : null,
-      sportType:
-        formData.category === "SPORT" ? formData.sportType : null,
+      duration: formData.category === "SPORT" ? Number(formData.duration) : null,
+      distance: formData.category === "SPORT" ? Number(formData.distance) : null,
+      sportDescription: formData.category === "SPORT" ? formData.sportDescription : null,
+      sportType: formData.category === "SPORT" ? formData.sportType : null,
       filePath: uploadedFilePath,
     };
 
@@ -267,9 +240,7 @@ const CalendarPage = () => {
   // === Smazání události ===
   const handleDelete = async () => {
     if (!selectedEvent) return;
-    await fetch(`http://localhost:8080/api/events/${selectedEvent.id}`, {
-      method: "DELETE",
-    });
+    await fetch(`http://localhost:8080/api/events/${selectedEvent.id}`, { method: "DELETE" });
     setShowModal(false);
     setSelectedEvent(null);
     await loadEvents();
@@ -315,9 +286,7 @@ const CalendarPage = () => {
                   <input
                     type="text"
                     value={formData.title}
-                    onChange={(e) =>
-                      setFormData({ ...formData, title: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     required
                   />
 
@@ -338,12 +307,7 @@ const CalendarPage = () => {
                       <select
                         className="sport-select"
                         value={formData.sportType}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            sportType: e.target.value,
-                          })
-                        }
+                        onChange={(e) => setFormData({ ...formData, sportType: e.target.value })}
                       >
                         <option value="RUNNING">Běh</option>
                         <option value="CYCLING">Kolo</option>
@@ -356,10 +320,7 @@ const CalendarPage = () => {
                         className="sport-textarea"
                         value={formData.sportDescription}
                         onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            sportDescription: e.target.value,
-                          })
+                          setFormData({ ...formData, sportDescription: e.target.value })
                         }
                       />
 
@@ -386,9 +347,7 @@ const CalendarPage = () => {
                         className="sport-file"
                         type="file"
                         accept=".gpx,.json"
-                        onChange={(e) =>
-                          setFormData({ ...formData, file: e.target.files[0] })
-                        }
+                        onChange={(e) => setFormData({ ...formData, file: e.target.files[0] })}
                       />
 
                       {formData.filePath && (
@@ -410,10 +369,7 @@ const CalendarPage = () => {
                           type="checkbox"
                           checked={formData.allDay}
                           onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              allDay: e.target.checked,
-                            })
+                            setFormData({ ...formData, allDay: e.target.checked })
                           }
                         />
                         <label>Celý den</label>
@@ -424,10 +380,7 @@ const CalendarPage = () => {
                         className="desc-textarea"
                         value={formData.description}
                         onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            description: e.target.value,
-                          })
+                          setFormData({ ...formData, description: e.target.value })
                         }
                       />
                     </>
@@ -440,7 +393,9 @@ const CalendarPage = () => {
                         <input
                           type="datetime-local"
                           value={formData.start}
-                          onChange={handleStartChange}
+                          onChange={(e) =>
+                            setFormData({ ...formData, start: e.target.value })
+                          }
                           required
                         />
                       </div>
@@ -459,15 +414,9 @@ const CalendarPage = () => {
                   )}
 
                   <div className="modal-buttons">
-                    <button type="submit">
-                      {selectedEvent ? "Uložit" : "Přidat"}
-                    </button>
+                    <button type="submit">{selectedEvent ? "Uložit" : "Přidat"}</button>
                     {selectedEvent && (
-                      <button
-                        type="button"
-                        className="delete-btn"
-                        onClick={handleDelete}
-                      >
+                      <button type="button" className="delete-btn" onClick={handleDelete}>
                         Smazat
                       </button>
                     )}

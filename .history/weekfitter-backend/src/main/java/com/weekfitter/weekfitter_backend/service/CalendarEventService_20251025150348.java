@@ -45,8 +45,6 @@ public class CalendarEventService {
             event.setEndTime(event.getStartTime().plusMinutes(event.getDuration().longValue()));
         }
 
-        // DŮLEŽITÉ: necháme projít sportType a filePath, pokud přišly
-        // (žádná další logika není potřeba)
         return calendarEventRepository.save(event);
     }
 
@@ -68,17 +66,12 @@ public class CalendarEventService {
                     event.setDuration(updatedEvent.getDuration());
                     event.setDistance(updatedEvent.getDistance());
                     event.setSportDescription(updatedEvent.getSportDescription());
-
-                    // DŮLEŽITÉ: doplnit chybějící pole
-                    event.setSportType(updatedEvent.getSportType());
-                    event.setFilePath(updatedEvent.getFilePath());
-
                     event.setUser(updatedEvent.getUser());
+
                     return calendarEventRepository.save(event);
                 })
                 .orElseThrow(() -> new RuntimeException("Event not found"));
     }
-
 
     public void deleteEvent(UUID id) {
         calendarEventRepository.deleteById(id);
