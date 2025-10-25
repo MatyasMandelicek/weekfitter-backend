@@ -196,24 +196,6 @@ const CalendarPage = () => {
         <div className="calendar-card">
           <h2>Kalendář aktivit</h2>
 
-          <div className="calendar-legend">
-            <div className="legend-item">
-              <span className="legend-color sport"></span> Sport
-            </div>
-            <div className="legend-item">
-              <span className="legend-color work"></span> Práce
-            </div>
-            <div className="legend-item">
-              <span className="legend-color school"></span> Škola
-            </div>
-            <div className="legend-item">
-              <span className="legend-color rest"></span> Odpočinek
-            </div>
-            <div className="legend-item">
-              <span className="legend-color other"></span> Jiné
-            </div>
-          </div>
-
           <Calendar
             localizer={localizer}
             events={events}

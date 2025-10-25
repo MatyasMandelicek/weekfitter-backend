@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
-import { format, parse, startOfWeek, getDay, setHours, setMinutes, isSameDay,} from "date-fns";
+import { format, parse, startOfWeek, getDay, setHours, setMinutes } from "date-fns";
 import { cs } from "date-fns/locale";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import Header from "../components/Header";
@@ -31,34 +31,22 @@ const CalendarPage = () => {
   const [view, setView] = useState(Views.MONTH);
   const [date, setDate] = useState(new Date());
 
-  const loadEvents = async () => {
-    const res = await fetch("http://localhost:8080/api/events");
-    const data = await res.json();
-    const formatted = data.map((event) => {
-      const s = new Date(event.startTime);
-      const e = new Date(event.endTime);
-      const allDayComputed =
-        isSameDay(s, e) &&
-        s.getHours() === 0 &&
-        s.getMinutes() === 0 &&
-        e.getHours() === 23 &&
-        e.getMinutes() === 59;
-
-      return {
-        id: event.id,
-        title: event.title,
-        start: s,
-        end: e,
-        description: event.description,
-        category: event.category,
-        allDay: allDayComputed,
-      };
-    });
-    setEvents(formatted);
-  };
-
   useEffect(() => {
-    loadEvents();
+    fetch("http://localhost:8080/api/events")
+      .then((res) => res.json())
+      .then((data) => {
+        const formatted = data.map((event) => ({
+          id: event.id,
+          title: event.title,
+          start: new Date(event.startTime),
+          end: new Date(event.endTime),
+          description: event.description,
+          category: event.category,
+          allDay: event.allDay || false,
+        }));
+        setEvents(formatted);
+      })
+      .catch((err) => console.error("Chyba při načítání událostí:", err));
   }, []);
 
   const getEventStyle = (event) => {
@@ -80,27 +68,23 @@ const CalendarPage = () => {
     };
   };
 
+  // 👉 Oprava: správný lokální defaultní čas 8:00–8:30
   const handleSelectSlot = (slotInfo) => {
-    const clicked = new Date(slotInfo.start);
-    const dayBase = new Date(
-      clicked.getFullYear(),
-      clicked.getMonth(),
-      clicked.getDate(),
-      0,
-      0,
-      0,
-      0
-    );
+    const clickedDate = new Date(slotInfo.start);
+    const localDate = new Date(clickedDate.toLocaleDateString("en-US", {timeZone: "Europe/Prague"}));
 
-    const defaultStart = setHours(setMinutes(dayBase, 0), 8);  // 08:00
-    const defaultEnd = setHours(setMinutes(dayBase, 30), 8);   // 08:30
+    const defaultStart = new Date(localDate);
+    defaultStart.setHours(8, 0, 0, 0);
+
+    const defaultEnd = new Date(localDate);
+    defaultEnd.setHours(8, 30, 0, 0);
 
     setSelectedEvent(null);
     setFormData({
       title: "",
       description: "",
-      start: format(defaultStart, "yyyy-MM-dd'T'HH:mm"),
-      end: format(defaultEnd, "yyyy-MM-dd'T'HH:mm"),
+      start: defaultStart.toISOString().slice(0, 16),
+      end: defaultEnd.toISOString().slice(0, 16),
       category: "SPORT",
       allDay: false,
     });
@@ -115,7 +99,7 @@ const CalendarPage = () => {
       start: format(event.start, "yyyy-MM-dd'T'HH:mm"),
       end: format(event.end, "yyyy-MM-dd'T'HH:mm"),
       category: event.category || "OTHER",
-      allDay: !!event.allDay,
+      allDay: event.allDay || false,
     });
     setShowModal(true);
   };
@@ -123,45 +107,32 @@ const CalendarPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    let startStr = formData.start;
-    let endStr = formData.end;
+    let payload;
 
     if (formData.allDay) {
-      const base = formData.start
-        ? new Date(formData.start)
-        : new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
+      // při celodenní události nastavíme půlnoc -> půlnoc následujícího dne
+      const startDate = new Date(formData.start);
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + 1);
 
-      const startDay = new Date(
-        base.getFullYear(),
-        base.getMonth(),
-        base.getDate(),
-        0,
-        0,
-        0,
-        0
-      );
-      const endDay = new Date(
-        base.getFullYear(),
-        base.getMonth(),
-        base.getDate(),
-        23,
-        59,
-        0,
-        0
-      );
-
-      startStr = format(startDay, "yyyy-MM-dd'T'HH:mm");
-      endStr = format(endDay, "yyyy-MM-dd'T'HH:mm");
+      payload = {
+        title: formData.title,
+        description: formData.description,
+        startTime: startDate.toISOString(),
+        endTime: endDate.toISOString(),
+        category: formData.category,
+        allDay: true,
+      };
+    } else {
+      payload = {
+        title: formData.title,
+        description: formData.description,
+        startTime: formData.start,
+        endTime: formData.end,
+        category: formData.category,
+        allDay: false,
+      };
     }
-
-    const payload = {
-      title: formData.title,
-      description: formData.description,
-      startTime: startStr,
-      endTime: endStr,
-      category: formData.category,
-      // záměrně NEposíláme allDay do backendu, pokud ho entita nemá
-    };
 
     const method = selectedEvent ? "PUT" : "POST";
     const url = selectedEvent
@@ -176,7 +147,7 @@ const CalendarPage = () => {
 
     setShowModal(false);
     setSelectedEvent(null);
-    await loadEvents();
+    window.location.reload();
   };
 
   const handleDelete = async () => {
@@ -186,7 +157,7 @@ const CalendarPage = () => {
     });
     setShowModal(false);
     setSelectedEvent(null);
-    await loadEvents();
+    window.location.reload();
   };
 
   return (
@@ -195,24 +166,6 @@ const CalendarPage = () => {
       <main className="calendar-container">
         <div className="calendar-card">
           <h2>Kalendář aktivit</h2>
-
-          <div className="calendar-legend">
-            <div className="legend-item">
-              <span className="legend-color sport"></span> Sport
-            </div>
-            <div className="legend-item">
-              <span className="legend-color work"></span> Práce
-            </div>
-            <div className="legend-item">
-              <span className="legend-color school"></span> Škola
-            </div>
-            <div className="legend-item">
-              <span className="legend-color rest"></span> Odpočinek
-            </div>
-            <div className="legend-item">
-              <span className="legend-color other"></span> Jiné
-            </div>
-          </div>
 
           <Calendar
             localizer={localizer}

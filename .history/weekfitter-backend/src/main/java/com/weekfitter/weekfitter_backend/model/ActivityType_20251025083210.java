@@ -4,6 +4,6 @@ public enum ActivityType {
     SPORT,
     WORK,
     SCHOOL,
-    REST,
+    DAILYREST,
     OTHER
 }

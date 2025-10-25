@@ -196,6 +196,7 @@ const CalendarPage = () => {
         <div className="calendar-card">
           <h2>Kalendář aktivit</h2>
 
+        {/* Legenda barev */}
           <div className="calendar-legend">
             <div className="legend-item">
               <span className="legend-color sport"></span> Sport

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
-import { format, parse, startOfWeek, getDay, setHours, setMinutes, isSameDay,} from "date-fns";
+import { format, parse, startOfWeek, getDay, setHours, setMinutes,  isSameDay,} from "date-fns";
 import { cs } from "date-fns/locale";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import Header from "../components/Header";
@@ -195,24 +195,6 @@ const CalendarPage = () => {
       <main className="calendar-container">
         <div className="calendar-card">
           <h2>Kalendář aktivit</h2>
-
-          <div className="calendar-legend">
-            <div className="legend-item">
-              <span className="legend-color sport"></span> Sport
-            </div>
-            <div className="legend-item">
-              <span className="legend-color work"></span> Práce
-            </div>
-            <div className="legend-item">
-              <span className="legend-color school"></span> Škola
-            </div>
-            <div className="legend-item">
-              <span className="legend-color rest"></span> Odpočinek
-            </div>
-            <div className="legend-item">
-              <span className="legend-color other"></span> Jiné
-            </div>
-          </div>
 
           <Calendar
             localizer={localizer}
