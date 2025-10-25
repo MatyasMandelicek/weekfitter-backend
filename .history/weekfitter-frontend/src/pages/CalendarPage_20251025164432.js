@@ -9,8 +9,8 @@ import "../styles/CalendarPage.css";
 // Import vlastních ikon
 import runIcon from "../assets/icons/run.png";
 import bikeIcon from "../assets/icons/bike.png";
-import swimIcon from "../assets/icons/swim.png";
-import otherIcon from "../assets/icons/other.png";
+import swimIcon from "../assets/icons/swim.svg";
+import otherIcon from "../assets/icons/other.svg";
 
 const locales = { cs };
 const localizer = dateFnsLocalizer({

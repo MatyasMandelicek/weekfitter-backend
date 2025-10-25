@@ -6,12 +6,6 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import Header from "../components/Header";
 import "../styles/CalendarPage.css";
 
-// Import vlastních ikon
-import runIcon from "../assets/icons/run.png";
-import bikeIcon from "../assets/icons/bike.png";
-import swimIcon from "../assets/icons/swim.png";
-import otherIcon from "../assets/icons/other.png";
-
 const locales = { cs };
 const localizer = dateFnsLocalizer({
   format,
@@ -20,13 +14,6 @@ const localizer = dateFnsLocalizer({
   getDay,
   locales,
 });
-
-const sportIcons = {
-  RUNNING: runIcon,
-  CYCLING: bikeIcon,
-  SWIMMING: swimIcon,
-  OTHER: otherIcon,
-};
 
 const CalendarPage = () => {
   const [events, setEvents] = useState([]);
@@ -93,24 +80,6 @@ const CalendarPage = () => {
         padding: "2px 4px",
       },
     };
-  };
-
-  // === Vlastní zobrazení události s ikonou ===
-  const CustomEvent = ({ event }) => {
-    if (event.category === "SPORT") {
-      const iconSrc = sportIcons[event.sportType] || sportIcons.OTHER;
-      return (
-        <div className="custom-event">
-          <img
-            src={iconSrc}
-            alt={event.sportType}
-            className="event-icon-img"
-          />
-          <span className="event-title">{event.title}</span>
-        </div>
-      );
-    }
-    return <div className="event-title">{event.title}</div>;
   };
 
   // === Kliknutí do buňky kalendáře ===
@@ -322,7 +291,6 @@ const CalendarPage = () => {
             onSelectSlot={handleSelectSlot}
             onSelectEvent={handleSelectEvent}
             eventPropGetter={getEventStyle}
-            components={{ event: CustomEvent }}
             view={view}
             date={date}
             onView={setView}
@@ -341,9 +309,7 @@ const CalendarPage = () => {
           {showModal && (
             <div className="modal-overlay">
               <div className="modal-content">
-                <h3>
-                  {selectedEvent ? "Upravit událost" : "Přidat novou událost"}
-                </h3>
+                <h3>{selectedEvent ? "Upravit událost" : "Přidat novou událost"}</h3>
                 <form onSubmit={handleSubmit}>
                   <label>Název:</label>
                   <input
@@ -356,10 +322,7 @@ const CalendarPage = () => {
                   />
 
                   <label>Kategorie:</label>
-                  <select
-                    value={formData.category}
-                    onChange={handleCategoryChange}
-                  >
+                  <select value={formData.category} onChange={handleCategoryChange}>
                     <option value="SPORT">Sport</option>
                     <option value="WORK">Práce</option>
                     <option value="SCHOOL">Škola</option>
@@ -414,10 +377,7 @@ const CalendarPage = () => {
                         type="number"
                         value={formData.distance}
                         onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            distance: e.target.value,
-                          })
+                          setFormData({ ...formData, distance: e.target.value })
                         }
                       />
 
@@ -427,10 +387,7 @@ const CalendarPage = () => {
                         type="file"
                         accept=".gpx,.json"
                         onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            file: e.target.files[0],
-                          })
+                          setFormData({ ...formData, file: e.target.files[0] })
                         }
                       />
 
@@ -493,10 +450,7 @@ const CalendarPage = () => {
                           type="datetime-local"
                           value={formData.end}
                           onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              end: e.target.value,
-                            })
+                            setFormData({ ...formData, end: e.target.value })
                           }
                           required
                         />
