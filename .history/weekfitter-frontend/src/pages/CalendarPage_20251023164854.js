@@ -81,7 +81,7 @@ const handleSelectSlot = (slotInfo) => {
     description: "",
     start: localStart.toISOString().slice(0, 16),
     end: localEnd.toISOString().slice(0, 16),
-    category: "",
+    category: "SPORT",
   });
   setShowModal(true);
 };

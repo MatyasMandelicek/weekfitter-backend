@@ -18,7 +18,6 @@ const localizer = dateFnsLocalizer({
 const CalendarPage = () => {
   const [events, setEvents] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -27,10 +26,11 @@ const CalendarPage = () => {
     category: "SPORT",
   });
 
+  // 🔹 Přidané stavy pro ovládání toolbaru
   const [view, setView] = useState(Views.MONTH);
   const [date, setDate] = useState(new Date());
 
-  // Načtení událostí z backendu
+  // 🔹 Načtení událostí z backendu
   useEffect(() => {
     fetch("http://localhost:8080/api/events")
       .then((res) => res.json())
@@ -48,61 +48,50 @@ const CalendarPage = () => {
       .catch((err) => console.error("Chyba při načítání událostí:", err));
   }, []);
 
-  // Barvy podle typu aktivity
+  // 🔹 Stylování událostí podle typu
   const getEventStyle = (event) => {
-    const colors = {
-      SPORT: "#28a745",
-      WORK: "#007bff",
-      SCHOOL: "#ffc107",
-      DAILY: "#6f42c1",
-      OTHER: "#ff6a00",
-    };
-
+    let bgColor = "#ff6a00";
+    switch (event.category) {
+      case "SPORT":
+        bgColor = "#28a745";
+        break;
+      case "WORK":
+        bgColor = "#007bff";
+        break;
+      case "SCHOOL":
+        bgColor = "#ffc107";
+        break;
+      case "REST":
+        bgColor = "#6f42c1";
+        break;
+      default:
+        bgColor = "#ff6a00";
+    }
     return {
       style: {
-        backgroundColor: colors[event.category] || "#ff6a00",
+        backgroundColor: bgColor,
         borderRadius: "8px",
         color: "white",
         border: "none",
-        padding: "2px 4px",
       },
     };
   };
 
-  // Kliknutí na volný slot → otevře formulář s přesným datem
-const handleSelectSlot = (slotInfo) => {
-  // Korekce časového posunu (z UTC na lokální čas)
-  const localStart = new Date(slotInfo.start.getTime() - slotInfo.start.getTimezoneOffset() * 60000);
-  const localEnd = new Date(slotInfo.end.getTime() - slotInfo.end.getTimezoneOffset() * 60000);
-
-  setSelectedEvent(null);
-  setFormData({
-    title: "",
-    description: "",
-    start: localStart.toISOString().slice(0, 16),
-    end: localEnd.toISOString().slice(0, 16),
-    category: "",
-  });
-  setShowModal(true);
-};
-
-  // Kliknutí na existující událost → otevře pro úpravu
-  const handleSelectEvent = (event) => {
-    setSelectedEvent(event);
+  // 🔹 Kliknutí na den/časový úsek → otevře formulář
+  const handleSelectSlot = (slotInfo) => {
     setFormData({
-      title: event.title,
-      description: event.description || "",
-      start: format(event.start, "yyyy-MM-dd'T'HH:mm"),
-      end: format(event.end, "yyyy-MM-dd'T'HH:mm"),
-      category: event.category || "OTHER",
+      title: "",
+      description: "",
+      start: format(slotInfo.start, "yyyy-MM-dd'T'HH:mm"),
+      end: format(slotInfo.end, "yyyy-MM-dd'T'HH:mm"),
+      category: "SPORT",
     });
     setShowModal(true);
   };
 
-  // Uložení (nové nebo upravené)
+  // 🔹 Odeslání nové události
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const payload = {
       title: formData.title,
       description: formData.description,
@@ -111,30 +100,13 @@ const handleSelectSlot = (slotInfo) => {
       category: formData.category,
     };
 
-    const method = selectedEvent ? "PUT" : "POST";
-    const url = selectedEvent
-      ? `http://localhost:8080/api/events/${selectedEvent.id}`
-      : "http://localhost:8080/api/events";
-
-    await fetch(url, {
-      method,
+    await fetch("http://localhost:8080/api/events", {
+      method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
 
     setShowModal(false);
-    setSelectedEvent(null);
-    window.location.reload();
-  };
-
-  // Mazání události
-  const handleDelete = async () => {
-    if (!selectedEvent) return;
-    await fetch(`http://localhost:8080/api/events/${selectedEvent.id}`, {
-      method: "DELETE",
-    });
-    setShowModal(false);
-    setSelectedEvent(null);
     window.location.reload();
   };
 
@@ -144,7 +116,6 @@ const handleSelectSlot = (slotInfo) => {
       <main className="calendar-container">
         <div className="calendar-card">
           <h2>Kalendář aktivit</h2>
-
           <Calendar
             localizer={localizer}
             events={events}
@@ -152,8 +123,8 @@ const handleSelectSlot = (slotInfo) => {
             endAccessor="end"
             selectable
             onSelectSlot={handleSelectSlot}
-            onSelectEvent={handleSelectEvent}
             eventPropGetter={getEventStyle}
+            // 🔹 Opravená logika toolbaru
             view={view}
             date={date}
             onView={(newView) => setView(newView)}
@@ -169,13 +140,11 @@ const handleSelectSlot = (slotInfo) => {
             }}
           />
 
-          {/* Modální okno */}
+          {/* 🟠 Modální okno */}
           {showModal && (
             <div className="modal-overlay">
               <div className="modal-content">
-                <h3>
-                  {selectedEvent ? "Upravit událost" : "Přidat novou událost"}
-                </h3>
+                <h3>Přidat novou událost</h3>
                 <form onSubmit={handleSubmit}>
                   <label>Název:</label>
                   <input
@@ -186,7 +155,6 @@ const handleSelectSlot = (slotInfo) => {
                     }
                     required
                   />
-
                   <label>Popis:</label>
                   <textarea
                     value={formData.description}
@@ -194,7 +162,6 @@ const handleSelectSlot = (slotInfo) => {
                       setFormData({ ...formData, description: e.target.value })
                     }
                   />
-
                   <label>Začátek:</label>
                   <input
                     type="datetime-local"
@@ -204,7 +171,6 @@ const handleSelectSlot = (slotInfo) => {
                     }
                     required
                   />
-
                   <label>Konec:</label>
                   <input
                     type="datetime-local"
@@ -214,7 +180,6 @@ const handleSelectSlot = (slotInfo) => {
                     }
                     required
                   />
-
                   <label>Kategorie:</label>
                   <select
                     value={formData.category}
@@ -225,30 +190,15 @@ const handleSelectSlot = (slotInfo) => {
                     <option value="SPORT">Sport</option>
                     <option value="WORK">Práce</option>
                     <option value="SCHOOL">Škola</option>
-                    <option value="DAILY">Odpočinek</option>
+                    <option value="REST">Odpočinek</option>
                     <option value="OTHER">Jiné</option>
                   </select>
-
                   <div className="modal-buttons">
-                    <button type="submit">
-                      {selectedEvent ? "Uložit změny" : "Přidat"}
-                    </button>
-                    {selectedEvent && (
-                      <button
-                        type="button"
-                        className="delete-btn"
-                        onClick={handleDelete}
-                      >
-                        Smazat
-                      </button>
-                    )}
+                    <button type="submit">Přidat</button>
                     <button
                       type="button"
                       className="cancel-btn"
-                      onClick={() => {
-                        setShowModal(false);
-                        setSelectedEvent(null);
-                      }}
+                      onClick={() => setShowModal(false)}
                     >
                       Zrušit
                     </button>

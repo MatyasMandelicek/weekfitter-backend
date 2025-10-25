@@ -30,7 +30,7 @@ const CalendarPage = () => {
   const [view, setView] = useState(Views.MONTH);
   const [date, setDate] = useState(new Date());
 
-  // Načtení událostí z backendu
+  // 🔹 Načtení událostí z backendu
   useEffect(() => {
     fetch("http://localhost:8080/api/events")
       .then((res) => res.json())
@@ -48,13 +48,13 @@ const CalendarPage = () => {
       .catch((err) => console.error("Chyba při načítání událostí:", err));
   }, []);
 
-  // Barvy podle typu aktivity
+  // 🎨 Barvy podle typu aktivity
   const getEventStyle = (event) => {
     const colors = {
       SPORT: "#28a745",
       WORK: "#007bff",
       SCHOOL: "#ffc107",
-      DAILY: "#6f42c1",
+      REST: "#6f42c1",
       OTHER: "#ff6a00",
     };
 
@@ -69,24 +69,23 @@ const CalendarPage = () => {
     };
   };
 
-  // Kliknutí na volný slot → otevře formulář s přesným datem
-const handleSelectSlot = (slotInfo) => {
-  // Korekce časového posunu (z UTC na lokální čas)
-  const localStart = new Date(slotInfo.start.getTime() - slotInfo.start.getTimezoneOffset() * 60000);
-  const localEnd = new Date(slotInfo.end.getTime() - slotInfo.end.getTimezoneOffset() * 60000);
+  // 🟢 Kliknutí na volný slot → otevře formulář s přesným datem
+  const handleSelectSlot = (slotInfo) => {
+    const start = format(slotInfo.start, "yyyy-MM-dd'T'HH:mm");
+    const end = format(slotInfo.end, "yyyy-MM-dd'T'HH:mm");
 
-  setSelectedEvent(null);
-  setFormData({
-    title: "",
-    description: "",
-    start: localStart.toISOString().slice(0, 16),
-    end: localEnd.toISOString().slice(0, 16),
-    category: "",
-  });
-  setShowModal(true);
-};
+    setSelectedEvent(null);
+    setFormData({
+      title: "",
+      description: "",
+      start,
+      end,
+      category: "SPORT",
+    });
+    setShowModal(true);
+  };
 
-  // Kliknutí na existující událost → otevře pro úpravu
+  // 🟡 Kliknutí na existující událost → otevře pro úpravu
   const handleSelectEvent = (event) => {
     setSelectedEvent(event);
     setFormData({
@@ -99,7 +98,7 @@ const handleSelectSlot = (slotInfo) => {
     setShowModal(true);
   };
 
-  // Uložení (nové nebo upravené)
+  // 💾 Uložení (nové nebo upravené)
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -127,7 +126,7 @@ const handleSelectSlot = (slotInfo) => {
     window.location.reload();
   };
 
-  // Mazání události
+  // 🗑️ Mazání události
   const handleDelete = async () => {
     if (!selectedEvent) return;
     await fetch(`http://localhost:8080/api/events/${selectedEvent.id}`, {
@@ -169,7 +168,7 @@ const handleSelectSlot = (slotInfo) => {
             }}
           />
 
-          {/* Modální okno */}
+          {/* 🟠 Modální okno */}
           {showModal && (
             <div className="modal-overlay">
               <div className="modal-content">
