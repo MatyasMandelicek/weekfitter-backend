@@ -73,7 +73,7 @@ const CalendarPage = () => {
 const handleSelectSlot = (slotInfo) => {
   // Korekce časového posunu (z UTC na lokální čas)
   const localStart = new Date(slotInfo.start.getTime() - slotInfo.start.getTimezoneOffset() * 60000);
-  const localEnd = new Date(localStart.getTime( + 30 * 60000)); // Přidat 30 minut
+  const localEnd = new Date(localStart.getTime
 
   setSelectedEvent(null);
   setFormData({
