@@ -155,7 +155,7 @@
   padding: 8px;
   font-size: 0.95rem;
   width: 100%;
-  resize: none;            
+  resize: none;            /* 🧡 zakáže ruční roztahování */
   overflow: hidden;        
   min-height: 60px;
   line-height: 1.4;

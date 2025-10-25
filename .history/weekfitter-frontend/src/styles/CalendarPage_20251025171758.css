@@ -131,6 +131,7 @@
 }
 
 .modal-content input,
+.modal-content textarea,
 .modal-content select {
   border: 1px solid #ccc;
   border-radius: 8px;
@@ -140,30 +141,8 @@
 }
 
 .modal-content input:focus,
-.modal-content select:focus {
-  border-color: #ff6a00;
-  outline: none;
-}
-
-/* --- Textarea --- */
-.modal-content textarea,
-.sport-section textarea,
-.desc-textarea,
-.sport-textarea {
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 8px;
-  font-size: 0.95rem;
-  width: 100%;
-  resize: none;            
-  overflow: hidden;        
-  min-height: 60px;
-  line-height: 1.4;
-  transition: height 0.2s ease;
-}
-
 .modal-content textarea:focus,
-.sport-section textarea:focus {
+.modal-content select:focus {
   border-color: #ff6a00;
   outline: none;
 }
@@ -280,7 +259,8 @@
 }
 
 .sport-section input[type="number"],
-.sport-section input[type="file"] {
+.sport-section input[type="file"],
+.sport-section textarea {
   width: 100%;
   padding: 8px;
   border: 1px solid #ccc;
@@ -314,7 +294,17 @@ input[type="file"]::-webkit-file-upload-button:hover {
   background: #ff8800;
 }
 
-/* --- Další prvky --- */
+/* --- Animace --- */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
 .allday-row {
   display: flex;
   align-items: center;
@@ -342,6 +332,22 @@ input[type="file"]::-webkit-file-upload-button:hover {
   gap: 10px;
 }
 
+.desc-textarea,
+.sport-textarea {
+  min-height: 60px;
+  resize: vertical;
+}
+
+.sport-select,
+.sport-input,
+.sport-file {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+}
+
 /* === Ikony ve sportovních aktivitách === */
 .custom-event {
   display: flex;
@@ -354,7 +360,7 @@ input[type="file"]::-webkit-file-upload-button:hover {
 .event-icon-img {
   width: 16px;
   height: 16px;
-  filter: brightness(0) invert(1);
+  filter: brightness(0) invert(1); /* z ikon udělá bílé */
 }
 
 .event-title {
@@ -363,13 +369,3 @@ input[type="file"]::-webkit-file-upload-button:hover {
   white-space: nowrap;
 }
 
-/* --- Animace --- */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from { transform: translateY(30px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}

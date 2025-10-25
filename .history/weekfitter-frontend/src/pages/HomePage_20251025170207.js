@@ -7,7 +7,7 @@ import "../styles/HomePage.css";
 const HomePage = () => {
   const navigate = useNavigate();
 
-  // Pokud uživatel není přihlášený, můžeš ho (volitelně) přesměrovat na login
+  // ✅ Pokud uživatel není přihlášený, můžeš ho (volitelně) přesměrovat na login
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
     if (!isLoggedIn) {
@@ -15,7 +15,7 @@ const HomePage = () => {
     }
   }, [navigate]);
 
-  // Funkce pro tlačítko "Začít plánovat"
+  // ✅ Funkce pro tlačítko "Začít plánovat"
   const handleStartClick = () => {
     const isLoggedIn =
       localStorage.getItem("isLoggedIn") === "true" ||

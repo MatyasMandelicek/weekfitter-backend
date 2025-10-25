@@ -312,14 +312,10 @@ const CalendarPage = () => {
 
   // === Přetažení události (drag & drop) ===
   const handleEventDrop = async ({ event, start, end }) => {
-    // normalizace času do lokálního formátu (oprava posunu)
-    const localStart = new Date(start.getTime() - start.getTimezoneOffset() * 60000);
-    const localEnd = new Date(end.getTime() - end.getTimezoneOffset() * 60000);
-
     const updatedEvent = {
       ...event,
-      startTime: localStart.toISOString(),
-      endTime: localEnd.toISOString(),
+      startTime: start,
+      endTime: end,
     };
 
     await fetch(`http://localhost:8080/api/events/${event.id}`, {
@@ -333,14 +329,10 @@ const CalendarPage = () => {
 
   // === Změna délky události ===
   const handleEventResize = async ({ event, start, end }) => {
-    // stejné ošetření časové zóny
-    const localStart = new Date(start.getTime() - start.getTimezoneOffset() * 60000);
-    const localEnd = new Date(end.getTime() - end.getTimezoneOffset() * 60000);
-
     const updatedEvent = {
       ...event,
-      startTime: localStart.toISOString(),
-      endTime: localEnd.toISOString(),
+      startTime: start,
+      endTime: end,
     };
 
     await fetch(`http://localhost:8080/api/events/${event.id}`, {
@@ -351,7 +343,6 @@ const CalendarPage = () => {
 
     await loadEvents();
   };
-
 
   return (
     <>

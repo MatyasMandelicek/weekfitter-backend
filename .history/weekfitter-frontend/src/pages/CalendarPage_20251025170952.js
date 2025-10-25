@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Calendar, dateFnsLocalizer, Views,} from "react-big-calendar";
+import {
+  Calendar,
+  dateFnsLocalizer,
+  Views,
+} from "react-big-calendar";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import { format, parse, startOfWeek, getDay, addMinutes } from "date-fns";
@@ -8,11 +12,11 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import Header from "../components/Header";
 import "../styles/CalendarPage.css";
 
-// Import ikon sportů
-import runIcon from "../assets/icons/run.png";
-import bikeIcon from "../assets/icons/bike.png";
-import swimIcon from "../assets/icons/swim.png";
-import otherIcon from "../assets/icons/other.png";
+// 🟠 Import vlastních ikon
+import runIcon from "../assets/icons/run.svg";
+import bikeIcon from "../assets/icons/bike.svg";
+import swimIcon from "../assets/icons/swim.svg";
+import otherIcon from "../assets/icons/other.svg";
 
 const locales = { cs };
 const localizer = dateFnsLocalizer({
@@ -116,12 +120,6 @@ const CalendarPage = () => {
     return <div className="event-title">{event.title}</div>;
   };
 
-  // === Dynamické zvětšování textarea ===
-  const autoResize = (e) => {
-    e.target.style.height = "auto";
-    e.target.style.height = `${e.target.scrollHeight}px`;
-  };
-
   // === Kliknutí do buňky kalendáře ===
   const handleSelectSlot = (slotInfo) => {
     let start = slotInfo.start;
@@ -146,6 +144,7 @@ const CalendarPage = () => {
         0
       );
     } else {
+      // V denním nebo týdenním pohledu použij přesný čas kliknuté buňky
       end = addMinutes(start, 30);
     }
 
@@ -196,6 +195,7 @@ const CalendarPage = () => {
     }));
   };
 
+  // === Výpočet konce podle trvání ===
   const handleDurationChange = (e) => {
     const minutes = parseInt(e.target.value);
     if (!isNaN(minutes) && formData.start) {
@@ -211,6 +211,7 @@ const CalendarPage = () => {
     }
   };
 
+  // === Při změně začátku a existujícím trvání přepočítej konec ===
   const handleStartChange = (e) => {
     const newStart = new Date(e.target.value);
 
@@ -230,6 +231,7 @@ const CalendarPage = () => {
     }
   };
 
+  // === Odeslání formuláře ===
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -300,6 +302,7 @@ const CalendarPage = () => {
     await loadEvents();
   };
 
+  // === Smazání události ===
   const handleDelete = async () => {
     if (!selectedEvent) return;
     await fetch(`http://localhost:8080/api/events/${selectedEvent.id}`, {
@@ -312,14 +315,10 @@ const CalendarPage = () => {
 
   // === Přetažení události (drag & drop) ===
   const handleEventDrop = async ({ event, start, end }) => {
-    // normalizace času do lokálního formátu (oprava posunu)
-    const localStart = new Date(start.getTime() - start.getTimezoneOffset() * 60000);
-    const localEnd = new Date(end.getTime() - end.getTimezoneOffset() * 60000);
-
     const updatedEvent = {
       ...event,
-      startTime: localStart.toISOString(),
-      endTime: localEnd.toISOString(),
+      startTime: start,
+      endTime: end,
     };
 
     await fetch(`http://localhost:8080/api/events/${event.id}`, {
@@ -333,14 +332,10 @@ const CalendarPage = () => {
 
   // === Změna délky události ===
   const handleEventResize = async ({ event, start, end }) => {
-    // stejné ošetření časové zóny
-    const localStart = new Date(start.getTime() - start.getTimezoneOffset() * 60000);
-    const localEnd = new Date(end.getTime() - end.getTimezoneOffset() * 60000);
-
     const updatedEvent = {
       ...event,
-      startTime: localStart.toISOString(),
-      endTime: localEnd.toISOString(),
+      startTime: start,
+      endTime: end,
     };
 
     await fetch(`http://localhost:8080/api/events/${event.id}`, {
@@ -351,7 +346,6 @@ const CalendarPage = () => {
 
     await loadEvents();
   };
-
 
   return (
     <>
@@ -442,7 +436,6 @@ const CalendarPage = () => {
                       <textarea
                         className="sport-textarea"
                         value={formData.sportDescription}
-                        onInput={autoResize}
                         onChange={(e) =>
                           setFormData({
                             ...formData,
@@ -517,7 +510,6 @@ const CalendarPage = () => {
                       <textarea
                         className="desc-textarea"
                         value={formData.description}
-                        onInput={autoResize}
                         onChange={(e) =>
                           setFormData({
                             ...formData,

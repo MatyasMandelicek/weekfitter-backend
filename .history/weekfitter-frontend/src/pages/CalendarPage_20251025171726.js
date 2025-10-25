@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Calendar, dateFnsLocalizer, Views,} from "react-big-calendar";
+import { Calendar,
+  dateFnsLocalizer,
+  Views,
+} from "react-big-calendar";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import { format, parse, startOfWeek, getDay, addMinutes } from "date-fns";
@@ -9,10 +12,10 @@ import Header from "../components/Header";
 import "../styles/CalendarPage.css";
 
 // Import ikon sportů
-import runIcon from "../assets/icons/run.png";
-import bikeIcon from "../assets/icons/bike.png";
-import swimIcon from "../assets/icons/swim.png";
-import otherIcon from "../assets/icons/other.png";
+import runIcon from "../assets/icons/run.svg";
+import bikeIcon from "../assets/icons/bike.svg";
+import swimIcon from "../assets/icons/swim.svg";
+import otherIcon from "../assets/icons/other.svg";
 
 const locales = { cs };
 const localizer = dateFnsLocalizer({
@@ -312,14 +315,10 @@ const CalendarPage = () => {
 
   // === Přetažení události (drag & drop) ===
   const handleEventDrop = async ({ event, start, end }) => {
-    // normalizace času do lokálního formátu (oprava posunu)
-    const localStart = new Date(start.getTime() - start.getTimezoneOffset() * 60000);
-    const localEnd = new Date(end.getTime() - end.getTimezoneOffset() * 60000);
-
     const updatedEvent = {
       ...event,
-      startTime: localStart.toISOString(),
-      endTime: localEnd.toISOString(),
+      startTime: start,
+      endTime: end,
     };
 
     await fetch(`http://localhost:8080/api/events/${event.id}`, {
@@ -333,14 +332,10 @@ const CalendarPage = () => {
 
   // === Změna délky události ===
   const handleEventResize = async ({ event, start, end }) => {
-    // stejné ošetření časové zóny
-    const localStart = new Date(start.getTime() - start.getTimezoneOffset() * 60000);
-    const localEnd = new Date(end.getTime() - end.getTimezoneOffset() * 60000);
-
     const updatedEvent = {
       ...event,
-      startTime: localStart.toISOString(),
-      endTime: localEnd.toISOString(),
+      startTime: start,
+      endTime: end,
     };
 
     await fetch(`http://localhost:8080/api/events/${event.id}`, {
@@ -351,7 +346,6 @@ const CalendarPage = () => {
 
     await loadEvents();
   };
-
 
   return (
     <>

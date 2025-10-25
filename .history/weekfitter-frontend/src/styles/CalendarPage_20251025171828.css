@@ -1,0 +1,172 @@
+.calendar-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background: linear-gradient(135deg, rgba(255, 106, 0, 0.95), rgba(238, 9, 121, 0.95)),
+    url("../assets/Triathlon.png");
+  background-size: cover;
+  background-position: center;
+  background-blend-mode: overlay;
+  padding: 60px 20px;
+  color: white;
+}
+
+.calendar-card {
+  background-color: rgba(255, 255, 255, 0.97);
+  color: #333;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.25);
+  max-width: 1100px;
+  width: 100%;
+  text-align: center;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.calendar-card h2 {
+  color: #ff6a00;
+  font-size: 2rem;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+/* === Kalendář === */
+.rbc-calendar {
+  background: white;
+  border-radius: 15px;
+  padding: 10px;
+}
+
+.rbc-toolbar button {
+  background: none;
+  border: 2px solid #ff6a00;
+  color: #ff6a00;
+  border-radius: 8px;
+  padding: 5px 12px;
+  margin: 2px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s ease;
+}
+
+.rbc-toolbar button:hover {
+  background-color: #ff6a00;
+  color: white;
+}
+
+.rbc-event {
+  border: none;
+  color: white;
+  font-weight: 600;
+  padding: 2px 4px;
+  border-radius: 8px;
+}
+
+/* === Modal === */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  color: #333;
+  padding: 30px;
+  border-radius: 15px;
+  width: 450px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* === Textarea === */
+.modal-content textarea,
+.sport-section textarea {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 0.95rem;
+  width: 100%;
+  resize: none; /* 🟠 zakáže manuální roztahování */
+  overflow: hidden; /* 🟠 zabrání posuvníku */
+  min-height: 60px;
+  line-height: 1.4;
+  transition: height 0.2s ease;
+}
+
+/* === Sportovní sekce === */
+.sport-section {
+  margin-top: 15px;
+  background-color: rgba(255, 106, 0, 0.08);
+  border: 2px solid #ff6a00;
+  border-radius: 10px;
+  padding: 15px;
+  text-align: left;
+}
+
+.sport-section h4 {
+  color: #ff6a00;
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+/* === Tlačítka === */
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+  gap: 10px;
+}
+
+.modal-content button {
+  border: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: white;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.modal-content button[type="submit"] {
+  background-color: #ff6a00;
+}
+
+.modal-content button[type="submit"]:hover {
+  background-color: #ff8800;
+}
+
+.modal-content .delete-btn {
+  background-color: #dc3545;
+}
+
+.modal-content .cancel-btn {
+  background-color: #6c757d;
+}
+
+.event-icon-img {
+  width: 16px;
+  height: 16px;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+/* === Animace === */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

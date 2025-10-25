@@ -333,7 +333,7 @@ const CalendarPage = () => {
 
   // === Změna délky události ===
   const handleEventResize = async ({ event, start, end }) => {
-    // stejné ošetření časové zóny
+    // 🕒 stejné ošetření časové zóny
     const localStart = new Date(start.getTime() - start.getTimezoneOffset() * 60000);
     const localEnd = new Date(end.getTime() - end.getTimezoneOffset() * 60000);
 

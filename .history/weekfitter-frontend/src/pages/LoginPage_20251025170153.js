@@ -13,7 +13,7 @@ const LoginPage = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Pokud je uživatel už přihlášený, přesměruj ho rovnou na /home
+  // ✅ Pokud je uživatel už přihlášený, přesměruj ho rovnou na /home
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
     if (isLoggedIn) {
@@ -56,7 +56,7 @@ const LoginPage = () => {
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("userEmail", formData.email);
 
-        // Po přihlášení přesměruj na domovskou stránku
+        // ✅ Po přihlášení přesměruj na domovskou stránku
         navigate("/home");
       } else {
         setErrorMessage("Nesprávný e-mail nebo heslo.");

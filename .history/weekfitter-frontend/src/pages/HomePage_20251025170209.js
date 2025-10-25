@@ -15,7 +15,7 @@ const HomePage = () => {
     }
   }, [navigate]);
 
-  // Funkce pro tlačítko "Začít plánovat"
+  // ✅ Funkce pro tlačítko "Začít plánovat"
   const handleStartClick = () => {
     const isLoggedIn =
       localStorage.getItem("isLoggedIn") === "true" ||
