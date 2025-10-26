@@ -128,13 +128,13 @@
 .calendar-summary-column {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start; /* nahoře přidá prostor */
+  justify-content: flex-start; /* nahoře přidáme prostor */
   background: rgba(255, 255, 255, 0.97);
   border-radius: 15px;
   padding: 40px;
-  min-height: 750px;           /* zvětší celý bílý blok směrem nahoru */
+  min-height: 750px;           /* ⬅zvětší celý bílý blok směrem nahoru */
   position: relative;
-  padding-top: 100px;      /* odsune obsah dolů */
+  padd
 }
 
 

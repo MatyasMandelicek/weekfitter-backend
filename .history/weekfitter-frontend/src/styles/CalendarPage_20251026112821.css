@@ -113,7 +113,7 @@
 /* === NOVÉ: grid layout pro měsíční pohled === */
 .calendar-with-summary {
   display: grid;
-  grid-template-columns: 1fr 260px;
+  grid-template-columns: 1fr 200px;
   gap: 10px;
   align-items: stretch;
   width: 100%;
@@ -134,7 +134,8 @@
   padding: 40px;
   min-height: 750px;           /* zvětší celý bílý blok směrem nahoru */
   position: relative;
-  padding-top: 100px;      /* odsune obsah dolů */
+  padding-top: 90px;      /* odsune obsah dolů */
+  margin-top: 50;
 }
 
 
