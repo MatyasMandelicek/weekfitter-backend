@@ -19,6 +19,7 @@ public class CalendarEventController {
 
     private final CalendarEventService calendarEventService;
     private final UserRepository userRepository;
+    private final CalendarEventRepository calendarEventRepository;
 
     public CalendarEventController(
             CalendarEventService calendarEventService,
@@ -27,6 +28,7 @@ public class CalendarEventController {
     ) {
         this.calendarEventService = calendarEventService;
         this.userRepository = userRepository;
+        this.calendarEventRepository = calendarEventRepository;
     }
 
     /**
@@ -54,7 +56,7 @@ public class CalendarEventController {
         }
 
         User user = userOpt.get();
-        event.setUser(user); // napojení události na uživatele
+        event.setUser(user); // 🔥 napojení události na uživatele
 
         try {
             CalendarEvent saved = calendarEventService.createEvent(event);

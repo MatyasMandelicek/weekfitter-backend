@@ -64,7 +64,7 @@ const CalendarPage = () => {
   const [view, setView] = useState(Views.MONTH);
   const [date, setDate] = useState(new Date());
 
-  // === Načtení událostí pouze pro přihlášeného uživatele ===
+  // === ✅ Načtení událostí pouze pro přihlášeného uživatele ===
   const loadEvents = async () => {
     const email = localStorage.getItem("userEmail");
     if (!email) {

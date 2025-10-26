@@ -27,7 +27,7 @@ public class CalendarEventService {
         return calendarEventRepository.findById(id);
     }
 
-    // nová verze pro načtení podle uživatele (už nepotřebuje userRepository)
+    // ✅ nová verze pro načtení podle uživatele (už nepotřebuje userRepository)
     public List<CalendarEvent> getEventsByUser(User user) {
         return calendarEventRepository.findByUser(user);
     }

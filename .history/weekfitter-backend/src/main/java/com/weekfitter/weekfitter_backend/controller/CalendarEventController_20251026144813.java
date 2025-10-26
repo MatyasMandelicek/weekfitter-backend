@@ -54,7 +54,7 @@ public class CalendarEventController {
         }
 
         User user = userOpt.get();
-        event.setUser(user); // napojení události na uživatele
+        event.setUser(user); // 🔥 napojení události na uživatele
 
         try {
             CalendarEvent saved = calendarEventService.createEvent(event);

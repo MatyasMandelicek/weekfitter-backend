@@ -45,7 +45,7 @@ public class CalendarEvent {
     private String filePath; // uložený GPX/JSON soubor
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
     @PrePersist

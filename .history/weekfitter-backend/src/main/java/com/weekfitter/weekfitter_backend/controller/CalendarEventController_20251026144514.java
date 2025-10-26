@@ -19,6 +19,7 @@ public class CalendarEventController {
 
     private final CalendarEventService calendarEventService;
     private final UserRepository userRepository;
+    private final CalendarEventRepository calendarEventRepository;
 
     public CalendarEventController(
             CalendarEventService calendarEventService,
@@ -27,10 +28,11 @@ public class CalendarEventController {
     ) {
         this.calendarEventService = calendarEventService;
         this.userRepository = userRepository;
+        this.calendarEventRepository = calendarEventRepository;
     }
 
     /**
-     * Vrátí události pouze přihlášeného uživatele podle e-mailu
+     * ✅ Vrátí události pouze přihlášeného uživatele podle e-mailu
      */
     @GetMapping
     public ResponseEntity<?> getEventsByUser(@RequestParam String email) {
@@ -44,7 +46,7 @@ public class CalendarEventController {
     }
 
     /**
-     * Vytvoří novou událost a automaticky ji přiřadí k uživateli
+     * ✅ Vytvoří novou událost a automaticky ji přiřadí k uživateli
      */
     @PostMapping
     public ResponseEntity<?> createEvent(@RequestParam String email, @RequestBody CalendarEvent event) {
@@ -54,7 +56,7 @@ public class CalendarEventController {
         }
 
         User user = userOpt.get();
-        event.setUser(user); // napojení události na uživatele
+        event.setUser(user); // 🔥 napojení události na uživatele
 
         try {
             CalendarEvent saved = calendarEventService.createEvent(event);

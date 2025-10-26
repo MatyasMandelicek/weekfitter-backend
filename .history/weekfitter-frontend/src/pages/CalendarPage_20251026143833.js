@@ -27,12 +27,11 @@ import otherIcon from "../assets/icons/other.png";
 const locales = { cs };
 const localizer = dateFnsLocalizer({
   format,
-  parse: (value, fmt) => parse(value, fmt, new Date(), { locale: cs }),
+  parse,
   startOfWeek: () => startOfWeek(new Date(), { weekStartsOn: 1 }),
   getDay,
   locales,
 });
-
 const DnDCalendar = withDragAndDrop(Calendar);
 
 const sportIcons = {
@@ -64,50 +63,29 @@ const CalendarPage = () => {
   const [view, setView] = useState(Views.MONTH);
   const [date, setDate] = useState(new Date());
 
-  // === Načtení událostí pouze pro přihlášeného uživatele ===
+  // === Načtení událostí ===
   const loadEvents = async () => {
-    const email = localStorage.getItem("userEmail");
-    if (!email) {
-      console.error("Uživatel není přihlášen – chybí e-mail v localStorage.");
-      setEvents([]);
-      return;
-    }
-
-    try {
-      const res = await fetch(`http://localhost:8080/api/events?email=${encodeURIComponent(email)}`);
-      const data = await res.json();
-
-      if (!Array.isArray(data)) {
-        console.error("Server nevrátil pole událostí:", data);
-        setEvents([]);
-        return;
-      }
-
-      const formatted = data.map((event) => ({
-        id: event.id,
-        title: event.title,
-        start: new Date(event.startTime),
-        end: new Date(event.endTime),
-        description: event.description,
-        category: event.category,
-        allDay: Boolean(event.allDay),
-        duration: event.duration,
-        distance: event.distance,
-        sportDescription: event.sportDescription,
-        sportType: event.sportType,
-        filePath: event.filePath,
-      }));
-
-      setEvents(formatted);
-    } catch (error) {
-      console.error("Chyba při načítání událostí:", error);
-      setEvents([]);
-    }
+    const res = await fetch("http://localhost:8080/api/events");
+    const data = await res.json();
+    const formatted = data.map((event) => ({
+      id: event.id,
+      title: event.title,
+      start: new Date(event.startTime),
+      end: new Date(event.endTime),
+      description: event.description,
+      category: event.category,
+      allDay: event.allDay || false,
+      duration: event.duration,
+      distance: event.distance,
+      sportDescription: event.sportDescription,
+      sportType: event.sportType,
+      filePath: event.filePath,
+    }));
+    setEvents(formatted);
   };
 
   useEffect(() => {
     loadEvents();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // === Barvy podle typu ===
@@ -136,7 +114,7 @@ const CalendarPage = () => {
       const iconSrc = sportIcons[event.sportType] || sportIcons.OTHER;
       return (
         <div className="custom-event">
-          <img src={iconSrc} alt={event.sportType || "SPORT"} className="event-icon-img" />
+          <img src={iconSrc} alt={event.sportType} className="event-icon-img" />
           <span className="event-title">{event.title}</span>
         </div>
       );
@@ -155,9 +133,23 @@ const CalendarPage = () => {
     let start = slotInfo.start;
     let end;
 
-    if (view === Views.MONTH) {
-      start = new Date(start.getFullYear(), start.getMonth(), start.getDate(), 8, 0, 0);
-      end = new Date(start.getFullYear(), start.getMonth(), start.getDate(), 8, 30, 0);
+    if (view === "month") {
+      start = new Date(
+        start.getFullYear(),
+        start.getMonth(),
+        start.getDate(),
+        8,
+        0,
+        0
+      );
+      end = new Date(
+        start.getFullYear(),
+        start.getMonth(),
+        start.getDate(),
+        8,
+        30,
+        0
+      );
     } else {
       end = addMinutes(start, 30);
     }
@@ -189,7 +181,7 @@ const CalendarPage = () => {
       start: format(event.start, "yyyy-MM-dd'T'HH:mm"),
       end: format(event.end, "yyyy-MM-dd'T'HH:mm"),
       category: event.category,
-      allDay: Boolean(event.allDay),
+      allDay: event.allDay,
       duration: event.duration || "",
       distance: event.distance || "",
       sportDescription: event.sportDescription || "",
@@ -200,7 +192,6 @@ const CalendarPage = () => {
     setShowModal(true);
   };
 
-  // === Změna kategorie (SPORT přepíná allDay na false) ===
   const handleCategoryChange = (e) => {
     const category = e.target.value;
     setFormData((prev) => ({
@@ -210,9 +201,8 @@ const CalendarPage = () => {
     }));
   };
 
-  // === Změna trvání → přepočítá konec ===
   const handleDurationChange = (e) => {
-    const minutes = parseInt(e.target.value, 10);
+    const minutes = parseInt(e.target.value);
     if (!isNaN(minutes) && formData.start) {
       const startDate = new Date(formData.start);
       const newEnd = addMinutes(startDate, minutes);
@@ -226,11 +216,11 @@ const CalendarPage = () => {
     }
   };
 
-  // === Změna začátku → případně přepočítá konec podle duration ===
   const handleStartChange = (e) => {
     const newStart = new Date(e.target.value);
-    if (formData.duration && !isNaN(parseInt(formData.duration, 10))) {
-      const minutes = parseInt(formData.duration, 10);
+
+    if (formData.duration && !isNaN(parseInt(formData.duration))) {
+      const minutes = parseInt(formData.duration);
       const newEnd = addMinutes(newStart, minutes);
       setFormData((prev) => ({
         ...prev,
@@ -245,16 +235,9 @@ const CalendarPage = () => {
     }
   };
 
-  // === Uložení (vytvoření/aktualizace) události ===
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const email = localStorage.getItem("userEmail");
-    if (!email) {
-      alert("Uživatel není přihlášen.");
-      return;
-    }
 
-    // Upload souboru (pokud je)
     let uploadedFilePath = formData.filePath;
     if (formData.file) {
       const uploadData = new FormData();
@@ -279,65 +262,60 @@ const CalendarPage = () => {
       }
     }
 
-    // Payload pro backend
     const payload = {
       title: formData.title,
-      description: formData.category === "SPORT" ? formData.sportDescription : formData.description,
-      startTime: formData.start, // "yyyy-MM-dd'T'HH:mm"
+      description:
+        formData.category === "SPORT"
+          ? formData.sportDescription
+          : formData.description,
+      startTime: formData.start,
       endTime: formData.end,
       category: formData.category,
       allDay: formData.category !== "SPORT" ? formData.allDay : false,
-      duration: formData.category === "SPORT" ? (formData.duration ? Number(formData.duration) : null) : null,
-      distance: formData.category === "SPORT" ? (formData.distance ? Number(formData.distance) : null) : null,
-      sportDescription: formData.category === "SPORT" ? formData.sportDescription : null,
-      sportType: formData.category === "SPORT" ? formData.sportType : null,
-      filePath: uploadedFilePath || null,
+      duration:
+        formData.category === "SPORT" ? Number(formData.duration) : null,
+      distance:
+        formData.category === "SPORT" ? Number(formData.distance) : null,
+      sportDescription:
+        formData.category === "SPORT" ? formData.sportDescription : null,
+      sportType:
+        formData.category === "SPORT" ? formData.sportType : null,
+      filePath: uploadedFilePath,
     };
 
     const method = selectedEvent ? "PUT" : "POST";
     const url = selectedEvent
       ? `http://localhost:8080/api/events/${selectedEvent.id}`
-      : `http://localhost:8080/api/events?email=${encodeURIComponent(email)}`;
+      : "http://localhost:8080/api/events";
 
-    try {
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+    const res = await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
-      if (!res.ok) {
-        const msg = await res.text();
-        alert("Chyba při ukládání události: " + msg);
-        return;
-      }
-
-      setShowModal(false);
-      setSelectedEvent(null);
-      await loadEvents();
-    } catch (error) {
-      alert("Chyba spojení s backendem při ukládání události.");
+    if (!res.ok) {
+      const msg = await res.text();
+      alert("Chyba při ukládání události: " + msg);
+      return;
     }
+
+    setShowModal(false);
+    setSelectedEvent(null);
+    await loadEvents();
   };
 
-  // === Smazání události ===
   const handleDelete = async () => {
     if (!selectedEvent) return;
-    try {
-      await fetch(`http://localhost:8080/api/events/${selectedEvent.id}`, {
-        method: "DELETE",
-      });
-      setShowModal(false);
-      setSelectedEvent(null);
-      await loadEvents();
-    } catch (error) {
-      alert("Chyba při mazání události.");
-    }
+    await fetch(`http://localhost:8080/api/events/${selectedEvent.id}`, {
+      method: "DELETE",
+    });
+    setShowModal(false);
+    setSelectedEvent(null);
+    await loadEvents();
   };
 
-  // === Drag & Drop (přesun) ===
   const handleEventDrop = async ({ event, start, end }) => {
-    // Korekce časového pásma (lokální → ISO) – zachování tvé původní logiky
     const localStart = new Date(start.getTime() - start.getTimezoneOffset() * 60000);
     const localEnd = new Date(end.getTime() - end.getTimezoneOffset() * 60000);
 
@@ -347,19 +325,15 @@ const CalendarPage = () => {
       endTime: localEnd.toISOString(),
     };
 
-    try {
-      await fetch(`http://localhost:8080/api/events/${event.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedEvent),
-      });
-      await loadEvents();
-    } catch (error) {
-      console.error("Chyba při přesunu události:", error);
-    }
+    await fetch(`http://localhost:8080/api/events/${event.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedEvent),
+    });
+
+    await loadEvents();
   };
 
-  // === Resize (změna délky) ===
   const handleEventResize = async ({ event, start, end }) => {
     const localStart = new Date(start.getTime() - start.getTimezoneOffset() * 60000);
     const localEnd = new Date(end.getTime() - end.getTimezoneOffset() * 60000);
@@ -370,21 +344,18 @@ const CalendarPage = () => {
       endTime: localEnd.toISOString(),
     };
 
-    try {
-      await fetch(`http://localhost:8080/api/events/${event.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedEvent),
-      });
-      await loadEvents();
-    } catch (error) {
-      console.error("Chyba při změně délky události:", error);
-    }
+    await fetch(`http://localhost:8080/api/events/${event.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedEvent),
+    });
+
+    await loadEvents();
   };
 
-  // === Souhrn sportů v měsíčním pohledu (všechny týdny měsíce) ===
+  // === Souhrn sportů v měsíčním pohledu ===
   const renderWeeklySummaryAllWeeks = () => {
-    if (view !== Views.MONTH) return null;
+    if (view !== "month") return null;
 
     const monthStart = startOfMonth(date);
     const monthEnd = endOfMonth(date);
@@ -482,7 +453,7 @@ const CalendarPage = () => {
         <div className="calendar-card">
           <h2>Kalendář aktivit</h2>
 
-          {view === Views.MONTH ? (
+          {view === "month" ? (
             renderWeeklySummaryAllWeeks()
           ) : (
             <DnDCalendar
@@ -519,18 +490,24 @@ const CalendarPage = () => {
           {showModal && (
             <div className="modal-overlay">
               <div className="modal-content">
-                <h3>{selectedEvent ? "Upravit událost" : "Přidat novou událost"}</h3>
+                <h3>
+                  {selectedEvent ? "Upravit událost" : "Přidat novou událost"}
+                </h3>
                 <form onSubmit={handleSubmit}>
                   <label>Název:</label>
                   <input
                     type="text"
                     value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, title: e.target.value })
+                    }
                     required
                   />
-
                   <label>Kategorie:</label>
-                  <select value={formData.category} onChange={handleCategoryChange}>
+                  <select
+                    value={formData.category}
+                    onChange={handleCategoryChange}
+                  >
                     <option value="SPORT">Sport</option>
                     <option value="WORK">Práce</option>
                     <option value="SCHOOL">Škola</option>
@@ -541,12 +518,16 @@ const CalendarPage = () => {
                   {formData.category === "SPORT" ? (
                     <div className="sport-section">
                       <h4>Sportovní údaje</h4>
-
                       <label>Typ sportu:</label>
                       <select
                         className="sport-select"
                         value={formData.sportType}
-                        onChange={(e) => setFormData({ ...formData, sportType: e.target.value })}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            sportType: e.target.value,
+                          })
+                        }
                       >
                         <option value="RUNNING">Běh</option>
                         <option value="CYCLING">Kolo</option>
@@ -559,7 +540,12 @@ const CalendarPage = () => {
                         className="sport-textarea"
                         value={formData.sportDescription}
                         onInput={autoResize}
-                        onChange={(e) => setFormData({ ...formData, sportDescription: e.target.value })}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            sportDescription: e.target.value,
+                          })
+                        }
                       />
 
                       <label>Trvání (minuty):</label>
@@ -575,7 +561,12 @@ const CalendarPage = () => {
                         className="sport-input"
                         type="number"
                         value={formData.distance}
-                        onChange={(e) => setFormData({ ...formData, distance: e.target.value })}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            distance: e.target.value,
+                          })
+                        }
                       />
 
                       <label>Soubor GPX/JSON:</label>
@@ -583,7 +574,12 @@ const CalendarPage = () => {
                         className="sport-file"
                         type="file"
                         accept=".gpx,.json"
-                        onChange={(e) => setFormData({ ...formData, file: e.target.files?.[0] || null })}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            file: e.target.files[0],
+                          })
+                        }
                       />
 
                       {formData.filePath && (
@@ -602,12 +598,16 @@ const CalendarPage = () => {
                     <>
                       <div className="allday-row">
                         <input
-                          id="allday"
                           type="checkbox"
                           checked={formData.allDay}
-                          onChange={(e) => setFormData({ ...formData, allDay: e.target.checked })}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              allDay: e.target.checked,
+                            })
+                          }
                         />
-                        <label htmlFor="allday">Celý den</label>
+                        <label>Celý den</label>
                       </div>
 
                       <label>Popis:</label>
@@ -615,7 +615,12 @@ const CalendarPage = () => {
                         className="desc-textarea"
                         value={formData.description}
                         onInput={autoResize}
-                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            description: e.target.value,
+                          })
+                        }
                       />
                     </>
                   )}
@@ -636,7 +641,12 @@ const CalendarPage = () => {
                         <input
                           type="datetime-local"
                           value={formData.end}
-                          onChange={(e) => setFormData({ ...formData, end: e.target.value })}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              end: e.target.value,
+                            })
+                          }
                           required
                         />
                       </div>
@@ -644,13 +654,23 @@ const CalendarPage = () => {
                   )}
 
                   <div className="modal-buttons">
-                    <button type="submit">{selectedEvent ? "Uložit" : "Přidat"}</button>
+                    <button type="submit">
+                      {selectedEvent ? "Uložit" : "Přidat"}
+                    </button>
                     {selectedEvent && (
-                      <button type="button" className="delete-btn" onClick={handleDelete}>
+                      <button
+                        type="button"
+                        className="delete-btn"
+                        onClick={handleDelete}
+                      >
                         Smazat
                       </button>
                     )}
-                    <button type="button" className="cancel-btn" onClick={() => setShowModal(false)}>
+                    <button
+                      type="button"
+                      className="cancel-btn"
+                      onClick={() => setShowModal(false)}
+                    >
                       Zrušit
                     </button>
                   </div>

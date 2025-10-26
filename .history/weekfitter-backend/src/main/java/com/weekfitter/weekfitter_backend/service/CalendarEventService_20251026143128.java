@@ -1,9 +1,10 @@
 package com.weekfitter.weekfitter_backend.service;
 
+import com.weekfitter.weekfitter_backend.model.ActivityType;
 import com.weekfitter.weekfitter_backend.model.CalendarEvent;
 import com.weekfitter.weekfitter_backend.model.User;
-import com.weekfitter.weekfitter_backend.model.ActivityType;
 import com.weekfitter.weekfitter_backend.respository.CalendarEventRepository;
+import com.weekfitter.weekfitter_backend.respository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,28 +15,49 @@ import java.util.UUID;
 public class CalendarEventService {
 
     private final CalendarEventRepository calendarEventRepository;
+    private final UserRepository userRepository;
 
-    public CalendarEventService(CalendarEventRepository calendarEventRepository) {
+    public CalendarEventService(CalendarEventRepository calendarEventRepository, UserRepository userRepository) {
         this.calendarEventRepository = calendarEventRepository;
+        this.userRepository = userRepository;
     }
 
+    /**
+     * Vrátí všechny události (jen pro administrativní účely, běžně nepoužíváme)
+     */
     public List<CalendarEvent> getAllEvents() {
         return calendarEventRepository.findAll();
     }
 
+    /**
+     * Vrátí konkrétní událost podle ID
+     */
     public Optional<CalendarEvent> getEventById(UUID id) {
         return calendarEventRepository.findById(id);
     }
 
-    // nová verze pro načtení podle uživatele (už nepotřebuje userRepository)
+    /**
+     * Vrátí všechny události podle konkrétního uživatele
+     */
     public List<CalendarEvent> getEventsByUser(User user) {
         return calendarEventRepository.findByUser(user);
     }
 
+    /**
+     * Vytvoří novou událost (automaticky přiřadí uživatele)
+     */
     public CalendarEvent createEvent(CalendarEvent event) {
-        if (event.getCategory() == null) event.setCategory(ActivityType.OTHER);
-        if (event.getTitle() == null || event.getTitle().isBlank())
-            throw new RuntimeException("Title is required");
+        if (event.getUser() == null) {
+            throw new RuntimeException("Událost musí mít přiřazeného uživatele.");
+        }
+
+        if (event.getCategory() == null) {
+            event.setCategory(ActivityType.OTHER);
+        }
+
+        if (event.getTitle() == null || event.getTitle().isBlank()) {
+            throw new RuntimeException("Název události je povinný.");
+        }
 
         if (event.getDuration() != null && event.getStartTime() != null) {
             event.setEndTime(event.getStartTime().plusMinutes(event.getDuration().longValue()));
@@ -44,6 +66,9 @@ public class CalendarEventService {
         return calendarEventRepository.save(event);
     }
 
+    /**
+     * Aktualizuje existující událost
+     */
     public CalendarEvent updateEvent(UUID id, CalendarEvent updatedEvent) {
         return calendarEventRepository.findById(id)
                 .map(event -> {
@@ -64,13 +89,16 @@ public class CalendarEventService {
                     event.setSportDescription(updatedEvent.getSportDescription());
                     event.setSportType(updatedEvent.getSportType());
                     event.setFilePath(updatedEvent.getFilePath());
-                    event.setUser(updatedEvent.getUser());
 
+                    // DŮLEŽITÉ: necháme přiřazeného uživatele beze změny
                     return calendarEventRepository.save(event);
                 })
-                .orElseThrow(() -> new RuntimeException("Event not found"));
+                .orElseThrow(() -> new RuntimeException("Událost nebyla nalezena."));
     }
 
+    /**
+     * Smaže událost
+     */
     public void deleteEvent(UUID id) {
         calendarEventRepository.deleteById(id);
     }
