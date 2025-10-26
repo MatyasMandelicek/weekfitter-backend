@@ -63,7 +63,7 @@ const LoginPage = () => {
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("userEmail", formData.email);
 
-        // Přesměrování na domovskou stránku
+        // ✅ Přesměrování na domovskou stránku
         navigate("/home");
       } else {
         setErrorMessage("Nesprávný e-mail nebo heslo.");

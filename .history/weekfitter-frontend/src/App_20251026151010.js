@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
-import DashboardPage from "./pages/DashboardPage";
+import DasPage from "./pages/ActivityPage";
 import CalendarPage from "./pages/CalendarPage";
 import RegisterPage from "./pages/RegisterPage";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -26,7 +26,7 @@ function App() {
         <Route path="/" element={<ProtectedRoute element={<HomePage />} />} />
         <Route path="/home" element={<ProtectedRoute element={<HomePage />} />} />
         <Route path="/calendar" element={<ProtectedRoute element={<CalendarPage />} />} />
-        <Route path="/dashboard" element={<ProtectedRoute element={<DashboardPage />} />} />
+        <Route path="/activities" element={<ProtectedRoute element={<ActivityPage />} />} />
         <Route path="/profile" element={<ProtectedRoute element={<ProfilePage />} />} />
         </Routes>
     </Router>

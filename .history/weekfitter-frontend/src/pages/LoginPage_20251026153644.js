@@ -59,11 +59,11 @@ const LoginPage = () => {
 
       // Pokud server vrací true nebo objekt uživatele, považuj za přihlášeného
       if (data) {
-        // Uložení přihlášení do localStorage
+        // ✅ Uložení přihlášení do localStorage
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("userEmail", formData.email);
 
-        // Přesměrování na domovskou stránku
+        // ✅ Přesměrování na domovskou stránku
         navigate("/home");
       } else {
         setErrorMessage("Nesprávný e-mail nebo heslo.");

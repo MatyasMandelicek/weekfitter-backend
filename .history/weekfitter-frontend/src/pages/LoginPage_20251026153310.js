@@ -49,21 +49,15 @@ const LoginPage = () => {
         body: JSON.stringify(formData),
       });
 
-      if (!res.ok) {
-        setErrorMessage("Nesprávný e-mail nebo heslo.");
-        setLoading(false);
-        return;
-      }
+      const success = await res.json();
 
-      const data = await res.json();
-
-      // Pokud server vrací true nebo objekt uživatele, považuj za přihlášeného
-      if (data) {
+      if (success) {
         // Uložení přihlášení do localStorage
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("userEmail", formData.email);
+        localStorage.setItem('isLo')
 
-        // Přesměrování na domovskou stránku
+        // Po přihlášení přesměruj na domovskou stránku
         navigate("/home");
       } else {
         setErrorMessage("Nesprávný e-mail nebo heslo.");
@@ -85,9 +79,7 @@ const LoginPage = () => {
           <h2>Přihlášení</h2>
 
           {/* Hláška o úspěšném resetu hesla */}
-          {successMessage && (
-            <div className="success-message">{successMessage}</div>
-          )}
+          {successMessage && <div className="success-message">{successMessage}</div>}
 
           <form onSubmit={handleSubmit}>
             <input
@@ -114,9 +106,7 @@ const LoginPage = () => {
               Zapomenuté heslo?
             </div>
 
-            {errorMessage && (
-              <div className="error-message">{errorMessage}</div>
-            )}
+            {errorMessage && <div className="error-message">{errorMessage}</div>}
 
             <button type="submit" className="primary-btn" disabled={loading}>
               {loading ? "Přihlašuji..." : "Přihlásit se"}

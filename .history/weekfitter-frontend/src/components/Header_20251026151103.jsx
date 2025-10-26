@@ -40,7 +40,7 @@ const Header = () => {
         <nav className="nav-links">
           <Link to="/home">Domů</Link>
           <Link to="/calendar">Kalendář</Link>
-          <Link to="/dashboard">Dashboard</Link>
+          <Link to="/activities">Dashboa</Link>
           <Link to="/profile">Profil</Link>
 
           {/* Dynamické tlačítko */}
