@@ -1,0 +1,177 @@
+.register-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    linear-gradient(135deg, rgba(255, 106, 0, 0.95), rgba(238, 9, 121, 0.95)),
+    url("../assets/Triathlon.png");
+  background-size: cover;
+  background-position: center 49%;
+  background-repeat: no-repeat;
+  background-blend-mode: overlay;
+  padding: 40px;
+}
+
+.register-card {
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.2);
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+}
+
+.register-logo {
+  width: 90px;
+  margin-bottom: 20px;
+}
+
+.register-card h2 {
+  color: #ff6a00;
+  margin-bottom: 20px;
+}
+
+.register-card input {
+  width: 100%;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 1rem;
+  outline: none;
+  transition: border 0.2s ease;
+}
+
+.register-card input:focus {
+  border-color: #ff6a00;
+  box-shadow: 0 0 5px rgba(255, 106, 0, 0.3);
+}
+
+.register-card button {
+  width: 100%;
+  padding: 12px;
+  background-color: #ff6a00;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.register-card button:hover {
+  background-color: #e65c00;
+}
+
+.register-card button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.login-link {
+  margin-top: 20px;
+  display: inline-block;
+  color: #ff6a00;
+  cursor: pointer;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.login-link:hover {
+  color: #e65c00;
+}
+
+/* CHYBOVÁ HLÁŠKA */
+.error-message {
+  color: #ffffff;
+  background-color: #cc0000;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  font-weight: 600;
+  text-align: center;
+  font-size: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* ÚSPĚŠNÁ HLÁŠKA */
+.success-message {
+  color: #ffffff;
+  background-color: #2e7d32;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  font-weight: 600;
+  text-align: center;
+  font-size: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Efekt pro zobrazení hlášek */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- Volba pohlaví --- */
+.gender-selection {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.gender-selection h4 {
+  margin-bottom: 12px;
+  color: #ff6a00;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.gender-options {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.gender-options label {
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.gender-options input[type="radio"] {
+  display: none;
+}
+
+.gender-options img {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  object-fit: cover;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: border 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  background: white;
+}
+
+.gender-options input[type="radio"]:checked + img {
+  border: 3px solid #ff6a00;
+  box-shadow: 0 0 15px rgba(255, 106, 0, 0.5);
+  transform: scale(1.05);
+}
+
+.gender-options label:hover img {
+  transform: scale(1.05);
+}
