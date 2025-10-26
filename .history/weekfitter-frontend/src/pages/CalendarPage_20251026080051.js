@@ -1,18 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
+import { Calendar, dateFnsLocalizer, Views,} from "react-big-calendar";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
-import {
-  format,
-  parse,
-  startOfWeek,
-  endOfWeek,
-  startOfMonth,
-  endOfMonth,
-  eachWeekOfInterval,
-  getDay,
-  addMinutes,
-} from "date-fns";
+import { format, parse, startOfWeek, getDay, addMinutes } from "date-fns";
 import { cs } from "date-fns/locale";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import Header from "../components/Header";
@@ -114,7 +104,11 @@ const CalendarPage = () => {
       const iconSrc = sportIcons[event.sportType] || sportIcons.OTHER;
       return (
         <div className="custom-event">
-          <img src={iconSrc} alt={event.sportType} className="event-icon-img" />
+          <img
+            src={iconSrc}
+            alt={event.sportType}
+            className="event-icon-img"
+          />
           <span className="event-title">{event.title}</span>
         </div>
       );
@@ -133,6 +127,7 @@ const CalendarPage = () => {
     let start = slotInfo.start;
     let end;
 
+    // Pokud jsem v měsíčním pohledu, nastav výchozí čas 8:00–8:30
     if (view === "month") {
       start = new Date(
         start.getFullYear(),
@@ -172,7 +167,7 @@ const CalendarPage = () => {
     setShowModal(true);
   };
 
-  // === Kliknutí na událost ===
+  // === Kliknutí na událost (otevře detail / úpravu) ===
   const handleSelectEvent = (event) => {
     setSelectedEvent(event);
     setFormData({
@@ -315,7 +310,9 @@ const CalendarPage = () => {
     await loadEvents();
   };
 
+  // === Přetažení události (drag & drop) ===
   const handleEventDrop = async ({ event, start, end }) => {
+    // normalizace času do lokálního formátu (oprava posunu)
     const localStart = new Date(start.getTime() - start.getTimezoneOffset() * 60000);
     const localEnd = new Date(end.getTime() - end.getTimezoneOffset() * 60000);
 
@@ -334,7 +331,9 @@ const CalendarPage = () => {
     await loadEvents();
   };
 
+  // === Změna délky události ===
   const handleEventResize = async ({ event, start, end }) => {
+    // stejné ošetření časové zóny
     const localStart = new Date(start.getTime() - start.getTimezoneOffset() * 60000);
     const localEnd = new Date(end.getTime() - end.getTimezoneOffset() * 60000);
 
@@ -353,24 +352,14 @@ const CalendarPage = () => {
     await loadEvents();
   };
 
-  // === Souhrn sportů v měsíčním pohledu ===
-  const renderWeeklySummaryAllWeeks = () => {
-    if (view !== "month") return null;
 
-    const monthStart = startOfMonth(date);
-    const monthEnd = endOfMonth(date);
-    const weeks = eachWeekOfInterval({ start: monthStart, end: monthEnd }, { weekStartsOn: 1 });
+  return (
+    <>
+      <Header />
+      <main className="calendar-container">
+        <div className="calendar-card">
+          <h2>Kalendář aktivit</h2>
 
-    const toHours = (min) => {
-      const safe = Number.isFinite(min) ? min : 0;
-      const h = Math.floor(safe / 60);
-      const m = safe % 60;
-      return `${h}h ${m}m`;
-    };
-
-    return (
-      <div className="calendar-with-summary">
-        <div className="calendar-left">
           <DnDCalendar
             localizer={localizer}
             events={events}
@@ -388,7 +377,7 @@ const CalendarPage = () => {
             date={date}
             onView={setView}
             onNavigate={setDate}
-            style={{ height: 750, fontSize: "0.95rem" }}
+            style={{ height: 600 }}
             messages={{
               next: "Další",
               previous: "Předchozí",
@@ -396,97 +385,9 @@ const CalendarPage = () => {
               month: "Měsíc",
               week: "Týden",
               day: "Den",
-              agenda: "Agenda",
             }}
           />
-        </div>
-        <div className="calendar-summary-column">
-          {weeks.map((weekStart, idx) => {
-            const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
-            const weekEvents = events.filter(
-              (e) =>
-                e.category === "SPORT" &&
-                e.start >= weekStart &&
-                e.start <= weekEnd
-            );
-            const totals = { RUNNING: 0, CYCLING: 0, SWIMMING: 0, OTHER: 0 };
-            weekEvents.forEach((e) => {
-              const dur = e.duration || 0;
-              const key = e.sportType && totals[e.sportType] !== undefined ? e.sportType : "OTHER";
-              totals[key] += dur;
-            });
-            return (
-              <div key={idx} className="summary-row">
-                <div className="summary-week-label">
-                  {format(weekStart, "d.M.")} – {format(weekEnd, "d.M.")}
-                </div>
-                <div className="summary-icons">
-                  <div className="sport-item">
-                    <img src={runIcon} alt="běh" />
-                    <span>{toHours(totals.RUNNING)}</span>
-                  </div>
-                  <div className="sport-item">
-                    <img src={bikeIcon} alt="kolo" />
-                    <span>{toHours(totals.CYCLING)}</span>
-                  </div>
-                  <div className="sport-item">
-                    <img src={swimIcon} alt="plavání" />
-                    <span>{toHours(totals.SWIMMING)}</span>
-                  </div>
-                  <div className="sport-item">
-                    <img src={otherIcon} alt="jiné" />
-                    <span>{toHours(totals.OTHER)}</span>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    );
-  };
 
-  return (
-    <>
-      <Header />
-      <main className="calendar-container">
-        <div className="calendar-card">
-          <h2>Kalendář aktivit</h2>
-
-          {view === "month" ? (
-            renderWeeklySummaryAllWeeks()
-          ) : (
-            <DnDCalendar
-              localizer={localizer}
-              events={events}
-              startAccessor="start"
-              endAccessor="end"
-              selectable
-              resizable
-              onEventDrop={handleEventDrop}
-              onEventResize={handleEventResize}
-              onSelectSlot={handleSelectSlot}
-              onSelectEvent={handleSelectEvent}
-              eventPropGetter={getEventStyle}
-              components={{ event: CustomEvent }}
-              view={view}
-              date={date}
-              onView={setView}
-              onNavigate={setDate}
-              style={{ height: 750, fontSize: "0.95rem" }}
-              messages={{
-                next: "Další",
-                previous: "Předchozí",
-                today: "Dnes",
-                month: "Měsíc",
-                week: "Týden",
-                day: "Den",
-                agenda: "Agenda",
-              }}
-            />
-          )}
-
-          {/* Modal */}
           {showModal && (
             <div className="modal-overlay">
               <div className="modal-content">
@@ -503,6 +404,7 @@ const CalendarPage = () => {
                     }
                     required
                   />
+
                   <label>Kategorie:</label>
                   <select
                     value={formData.category}
@@ -518,6 +420,7 @@ const CalendarPage = () => {
                   {formData.category === "SPORT" ? (
                     <div className="sport-section">
                       <h4>Sportovní údaje</h4>
+
                       <label>Typ sportu:</label>
                       <select
                         className="sport-select"

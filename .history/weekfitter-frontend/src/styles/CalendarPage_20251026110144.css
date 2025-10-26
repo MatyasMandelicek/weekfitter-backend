@@ -131,9 +131,8 @@
   justify-content: stretch;
   background: rgba(255, 255, 255, 0.97);
   border-radius: 15px;
-  /*box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);*/
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   padding: 10px;
-  margin-top: 90px;
 }
 
 /* === Každý týdenní řádek odpovídá výšce řádku kalendáře === */

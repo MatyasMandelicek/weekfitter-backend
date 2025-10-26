@@ -19,15 +19,21 @@
   padding: 30px;
   border-radius: 20px;
   box-shadow: 0 4px 25px rgba(0, 0, 0, 0.25);
-  max-width: 1400px;
+  max-width: 1300px;
   width: 100%;
   text-align: center;
   animation: fadeIn 0.5s ease-in-out;
 }
 
+.enlarged-calendar {
+  transform: scale(1.05);
+  transform-origin: top center;
+  transition: transform 0.4s ease;
+}
+
 .calendar-card h2 {
   color: #ff6a00;
-  font-size: 2rem;
+  font-size: 2.2rem;
   margin-bottom: 20px;
   font-weight: 700;
 }
@@ -37,34 +43,38 @@
   background: white;
   border-radius: 15px;
   padding: 10px;
+  font-size: 1.05rem;
 }
 
-.rbc-month-view {
-  border-radius: 15px;
-}
-
-.rbc-month-row {
-  min-height: 130px;
+/* Zvětšení mřížky kalendáře */
+.rbc-month-view,
+.rbc-time-view,
+.rbc-agenda-view {
+  font-size: 1.05rem;
 }
 
 .rbc-header {
-  font-size: 1rem;
-  font-weight: 600;
-  padding: 8px 0;
+  font-size: 1.1rem;
+  padding: 10px 0;
+}
+
+.rbc-month-row {
+  min-height: 180px;
 }
 
 .rbc-date-cell {
-  padding: 6px;
-  font-size: 0.95rem;
+  padding: 8px;
+  font-size: 1rem;
 }
 
 .rbc-event {
   border: none;
   color: white;
   font-weight: 600;
-  padding: 2px 5px;
+  padding: 4px 6px;
   border-radius: 8px;
   transition: transform 0.2s ease;
+  font-size: 0.95rem;
 }
 
 .rbc-event:hover {
@@ -110,78 +120,6 @@
   border-color: #ff6a00;
 }
 
-/* === NOVÉ: grid layout pro měsíční pohled === */
-.calendar-with-summary {
-  display: grid;
-  grid-template-columns: 1fr 260px;
-  gap: 10px;
-  align-items: stretch;
-  width: 100%;
-}
-
-.calendar-left {
-  background: white;
-  border-radius: 15px;
-  overflow: hidden;
-}
-
-.calendar-summary-column {
-  display: flex;
-  flex-direction: column;
-  justify-content: stretch;
-  background: rgba(255, 255, 255, 0.97);
-  border-radius: 15px;
-  /*box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);*/
-  padding: 10px;
-  margin-top: 90px;
-}
-
-/* === Každý týdenní řádek odpovídá výšce řádku kalendáře === */
-.summary-row {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  height: 130px; /* odpovídá .rbc-month-row */
-  border-bottom: 1px solid #ddd;
-  padding: 6px;
-}
-
-.summary-row:last-child {
-  border-bottom: none;
-}
-
-.summary-week-label {
-  font-weight: 600;
-  color: #333;
-  font-size: 0.9rem;
-  text-align: center;
-  margin-bottom: 5px;
-}
-
-.summary-icons {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.sport-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 0.9rem;
-}
-
-.sport-item img {
-  width: 18px;
-  height: 18px;
-  filter: brightness(0) invert(0.4) sepia(1) hue-rotate(10deg) saturate(6);
-}
-
-.sport-item span {
-  font-weight: 600;
-  color: #333;
-}
-
 /* --- Modal --- */
 .modal-overlay {
   position: fixed;
@@ -202,7 +140,7 @@
   color: #333;
   padding: 30px;
   border-radius: 15px;
-  width: 450px;
+  width: 480px;
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
@@ -302,7 +240,52 @@
   background-color: #5a6268;
 }
 
-/* --- Sportovní sekce --- */
+/* --- Legenda --- */
+.calendar-legend {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.legend-color {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  margin-right: 6px;
+  border: 1px solid #ccc;
+}
+
+.legend-color.sport {
+  background-color: #28a745;
+}
+
+.legend-color.work {
+  background-color: #007bff;
+}
+
+.legend-color.school {
+  background-color: #ffc107;
+}
+
+.legend-color.rest {
+  background-color: #6f42c1;
+}
+
+.legend-color.other {
+  background-color: #ff6a00;
+}
+
+/* --- Sportovní podokno --- */
 .sport-section {
   margin-top: 15px;
   background-color: rgba(255, 106, 0, 0.08);
@@ -347,7 +330,21 @@
   background-color: #ffe8d5;
 }
 
-/* --- Ostatní --- */
+input[type="file"]::-webkit-file-upload-button {
+  background: #ff6a00;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+input[type="file"]::-webkit-file-upload-button:hover {
+  background: #ff8800;
+}
+
+/* --- Další prvky --- */
 .allday-row {
   display: flex;
   align-items: center;
@@ -375,19 +372,25 @@
   gap: 10px;
 }
 
-/* --- Ikony v kalendáři --- */
+/* === Ikony ve sportovních aktivitách === */
 .custom-event {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 
 .event-icon-img {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   filter: brightness(0) invert(1);
+}
+
+.event-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* --- Animace --- */
@@ -401,17 +404,87 @@
   to { transform: translateY(0); opacity: 1; }
 }
 
-/* --- Responsivita --- */
+/* === Layout a souhrny sportů === */
+.calendar-layout {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 40px;
+  width: 100%;
+  max-width: 1500px;
+}
+
+/* Kalendář zvětšený */
+.calendar-card {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Panel souhrnů */
+.weekly-summary {
+  flex: 0 0 280px;
+  background-color: rgba(255, 255, 255, 0.97);
+  color: #333;
+  border-radius: 20px;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.25);
+  padding: 20px;
+  height: fit-content;
+  position: sticky;
+  top: 80px;
+}
+
+.weekly-summary h3 {
+  color: #ff6a00;
+  text-align: center;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.week-summary {
+  border-top: 1px solid #eaeaea;
+  padding-top: 10px;
+  margin-top: 10px;
+}
+
+.week-summary h4 {
+  font-size: 1rem;
+  margin: 0 0 6px 0;
+  color: #333;
+}
+
+.week-icons {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sport-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sport-item img {
+  width: 20px;
+  height: 20px;
+  filter: brightness(0) invert(0.4) sepia(1) hue-rotate(10deg) saturate(6);
+}
+
+.sport-item span {
+  font-weight: 600;
+}
+
+/* Responsivita */
 @media (max-width: 1100px) {
-  .calendar-with-summary {
-    grid-template-columns: 1fr;
+  .calendar-layout {
+    flex-direction: column;
+    align-items: center;
   }
 
-  .calendar-summary-column {
-    margin-top: 10px;
-  }
-
-  .summary-row {
-    height: auto;
+  .weekly-summary {
+    position: relative;
+    top: 0;
+    width: 100%;
+    max-width: 400px;
   }
 }

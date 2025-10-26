@@ -1,18 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
+import { Calendar, dateFnsLocalizer, Views,} from "react-big-calendar";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
-import {
-  format,
-  parse,
-  startOfWeek,
-  endOfWeek,
-  startOfMonth,
-  endOfMonth,
-  eachWeekOfInterval,
-  getDay,
-  addMinutes,
-} from "date-fns";
+import { format, parse, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachWeekOfInterval, getDay, addMinutes } from "date-fns";
 import { cs } from "date-fns/locale";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import Header from "../components/Header";
@@ -114,7 +104,11 @@ const CalendarPage = () => {
       const iconSrc = sportIcons[event.sportType] || sportIcons.OTHER;
       return (
         <div className="custom-event">
-          <img src={iconSrc} alt={event.sportType} className="event-icon-img" />
+          <img
+            src={iconSrc}
+            alt={event.sportType}
+            className="event-icon-img"
+          />
           <span className="event-title">{event.title}</span>
         </div>
       );
@@ -133,6 +127,7 @@ const CalendarPage = () => {
     let start = slotInfo.start;
     let end;
 
+    // Pokud jsem v měsíčním pohledu, nastav výchozí čas 8:00–8:30
     if (view === "month") {
       start = new Date(
         start.getFullYear(),
@@ -172,7 +167,7 @@ const CalendarPage = () => {
     setShowModal(true);
   };
 
-  // === Kliknutí na událost ===
+  // === Kliknutí na událost (otevře detail / úpravu) ===
   const handleSelectEvent = (event) => {
     setSelectedEvent(event);
     setFormData({
@@ -315,7 +310,9 @@ const CalendarPage = () => {
     await loadEvents();
   };
 
+  // === Přetažení události (drag & drop) ===
   const handleEventDrop = async ({ event, start, end }) => {
+    // normalizace času do lokálního formátu (oprava posunu)
     const localStart = new Date(start.getTime() - start.getTimezoneOffset() * 60000);
     const localEnd = new Date(end.getTime() - end.getTimezoneOffset() * 60000);
 
@@ -334,7 +331,9 @@ const CalendarPage = () => {
     await loadEvents();
   };
 
+  // === Změna délky události ===
   const handleEventResize = async ({ event, start, end }) => {
+    // stejné ošetření časové zóny
     const localStart = new Date(start.getTime() - start.getTimezoneOffset() * 60000);
     const localEnd = new Date(end.getTime() - end.getTimezoneOffset() * 60000);
 
@@ -353,8 +352,9 @@ const CalendarPage = () => {
     await loadEvents();
   };
 
-  // === Souhrn sportů v měsíčním pohledu ===
+  // === ⬅️⬅️ NOVÉ: Panel vpravo se souhrny pro VŠECHNY týdny zobrazeného měsíce ===
   const renderWeeklySummaryAllWeeks = () => {
+    // Jen v měsíčním pohledu
     if (view !== "month") return null;
 
     const monthStart = startOfMonth(date);
@@ -369,79 +369,50 @@ const CalendarPage = () => {
     };
 
     return (
-      <div className="calendar-with-summary">
-        <div className="calendar-left">
-          <DnDCalendar
-            localizer={localizer}
-            events={events}
-            startAccessor="start"
-            endAccessor="end"
-            selectable
-            resizable
-            onEventDrop={handleEventDrop}
-            onEventResize={handleEventResize}
-            onSelectSlot={handleSelectSlot}
-            onSelectEvent={handleSelectEvent}
-            eventPropGetter={getEventStyle}
-            components={{ event: CustomEvent }}
-            view={view}
-            date={date}
-            onView={setView}
-            onNavigate={setDate}
-            style={{ height: 750, fontSize: "0.95rem" }}
-            messages={{
-              next: "Další",
-              previous: "Předchozí",
-              today: "Dnes",
-              month: "Měsíc",
-              week: "Týden",
-              day: "Den",
-              agenda: "Agenda",
-            }}
-          />
-        </div>
-        <div className="calendar-summary-column">
-          {weeks.map((weekStart, idx) => {
-            const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
-            const weekEvents = events.filter(
-              (e) =>
-                e.category === "SPORT" &&
-                e.start >= weekStart &&
-                e.start <= weekEnd
-            );
-            const totals = { RUNNING: 0, CYCLING: 0, SWIMMING: 0, OTHER: 0 };
-            weekEvents.forEach((e) => {
-              const dur = e.duration || 0;
-              const key = e.sportType && totals[e.sportType] !== undefined ? e.sportType : "OTHER";
-              totals[key] += dur;
-            });
-            return (
-              <div key={idx} className="summary-row">
-                <div className="summary-week-label">
-                  {format(weekStart, "d.M.")} – {format(weekEnd, "d.M.")}
+      <div className="weekly-summary">
+        <h3>Souhrn sportů (měsíc)</h3>
+        {weeks.map((weekStart, idx) => {
+          const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
+
+          // Události spadající do týdne
+          const weekEvents = events.filter(
+            (e) =>
+              e.category === "SPORT" &&
+              e.start >= weekStart &&
+              e.start <= weekEnd
+          );
+
+          const totals = { RUNNING: 0, CYCLING: 0, SWIMMING: 0, OTHER: 0 };
+          weekEvents.forEach((e) => {
+            const dur = e.duration || 0;
+            const key = e.sportType && totals[e.sportType] !== undefined ? e.sportType : "OTHER";
+            totals[key] += dur;
+          });
+
+          return (
+            <div key={idx} className="week-summary">
+              <h4>{format(weekStart, "d.M.")} – {format(weekEnd, "d.M.")}</h4>
+              <div className="week-icons">
+                <div className="sport-item">
+                  <img src={runIcon} alt="běh" />
+                  <span>{toHours(totals.RUNNING)}</span>
                 </div>
-                <div className="summary-icons">
-                  <div className="sport-item">
-                    <img src={runIcon} alt="běh" />
-                    <span>{toHours(totals.RUNNING)}</span>
-                  </div>
-                  <div className="sport-item">
-                    <img src={bikeIcon} alt="kolo" />
-                    <span>{toHours(totals.CYCLING)}</span>
-                  </div>
-                  <div className="sport-item">
-                    <img src={swimIcon} alt="plavání" />
-                    <span>{toHours(totals.SWIMMING)}</span>
-                  </div>
-                  <div className="sport-item">
-                    <img src={otherIcon} alt="jiné" />
-                    <span>{toHours(totals.OTHER)}</span>
-                  </div>
+                <div className="sport-item">
+                  <img src={bikeIcon} alt="kolo" />
+                  <span>{toHours(totals.CYCLING)}</span>
+                </div>
+                <div className="sport-item">
+                  <img src={swimIcon} alt="plavání" />
+                  <span>{toHours(totals.SWIMMING)}</span>
+                </div>
+                <div className="sport-item">
+                  <img src={otherIcon} alt="jiné" />
+                  <span>{toHours(totals.OTHER)}</span>
                 </div>
               </div>
-            );
-          })}
-        </div>
+            </div>
+          );
+        })}
       </div>
     );
   };
@@ -450,12 +421,11 @@ const CalendarPage = () => {
     <>
       <Header />
       <main className="calendar-container">
-        <div className="calendar-card">
-          <h2>Kalendář aktivit</h2>
+        {/* NOVÉ: obal layoutu, aby se panel zobrazil vpravo vedle kalendáře */}
+        <div className="calendar-layout">
+          <div className="calendar-card">
+            <h2>Kalendář aktivit</h2>
 
-          {view === "month" ? (
-            renderWeeklySummaryAllWeeks()
-          ) : (
             <DnDCalendar
               localizer={localizer}
               events={events}
@@ -473,7 +443,7 @@ const CalendarPage = () => {
               date={date}
               onView={setView}
               onNavigate={setDate}
-              style={{ height: 750, fontSize: "0.95rem" }}
+              style={{ height: 600 }}
               messages={{
                 next: "Další",
                 previous: "Předchozí",
@@ -481,203 +451,206 @@ const CalendarPage = () => {
                 month: "Měsíc",
                 week: "Týden",
                 day: "Den",
-                agenda: "Agenda",
               }}
             />
-          )}
 
-          {/* Modal */}
-          {showModal && (
-            <div className="modal-overlay">
-              <div className="modal-content">
-                <h3>
-                  {selectedEvent ? "Upravit událost" : "Přidat novou událost"}
-                </h3>
-                <form onSubmit={handleSubmit}>
-                  <label>Název:</label>
-                  <input
-                    type="text"
-                    value={formData.title}
-                    onChange={(e) =>
-                      setFormData({ ...formData, title: e.target.value })
-                    }
-                    required
-                  />
-                  <label>Kategorie:</label>
-                  <select
-                    value={formData.category}
-                    onChange={handleCategoryChange}
-                  >
-                    <option value="SPORT">Sport</option>
-                    <option value="WORK">Práce</option>
-                    <option value="SCHOOL">Škola</option>
-                    <option value="REST">Odpočinek</option>
-                    <option value="OTHER">Jiné</option>
-                  </select>
+            {showModal && (
+              <div className="modal-overlay">
+                <div className="modal-content">
+                  <h3>
+                    {selectedEvent ? "Upravit událost" : "Přidat novou událost"}
+                  </h3>
+                  <form onSubmit={handleSubmit}>
+                    <label>Název:</label>
+                    <input
+                      type="text"
+                      value={formData.title}
+                      onChange={(e) =>
+                        setFormData({ ...formData, title: e.target.value })
+                      }
+                      required
+                    />
 
-                  {formData.category === "SPORT" ? (
-                    <div className="sport-section">
-                      <h4>Sportovní údaje</h4>
-                      <label>Typ sportu:</label>
-                      <select
-                        className="sport-select"
-                        value={formData.sportType}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            sportType: e.target.value,
-                          })
-                        }
-                      >
-                        <option value="RUNNING">Běh</option>
-                        <option value="CYCLING">Kolo</option>
-                        <option value="SWIMMING">Plavání</option>
-                        <option value="OTHER">Jiné</option>
-                      </select>
+                    <label>Kategorie:</label>
+                    <select
+                      value={formData.category}
+                      onChange={handleCategoryChange}
+                    >
+                      <option value="SPORT">Sport</option>
+                      <option value="WORK">Práce</option>
+                      <option value="SCHOOL">Škola</option>
+                      <option value="REST">Odpočinek</option>
+                      <option value="OTHER">Jiné</option>
+                    </select>
 
-                      <label>Popis aktivity:</label>
-                      <textarea
-                        className="sport-textarea"
-                        value={formData.sportDescription}
-                        onInput={autoResize}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            sportDescription: e.target.value,
-                          })
-                        }
-                      />
+                    {formData.category === "SPORT" ? (
+                      <div className="sport-section">
+                        <h4>Sportovní údaje</h4>
 
-                      <label>Trvání (minuty):</label>
-                      <input
-                        className="sport-input"
-                        type="number"
-                        value={formData.duration}
-                        onChange={handleDurationChange}
-                      />
+                        <label>Typ sportu:</label>
+                        <select
+                          className="sport-select"
+                          value={formData.sportType}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              sportType: e.target.value,
+                            })
+                          }
+                        >
+                          <option value="RUNNING">Běh</option>
+                          <option value="CYCLING">Kolo</option>
+                          <option value="SWIMMING">Plavání</option>
+                          <option value="OTHER">Jiné</option>
+                        </select>
 
-                      <label>Vzdálenost (km):</label>
-                      <input
-                        className="sport-input"
-                        type="number"
-                        value={formData.distance}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            distance: e.target.value,
-                          })
-                        }
-                      />
+                        <label>Popis aktivity:</label>
+                        <textarea
+                          className="sport-textarea"
+                          value={formData.sportDescription}
+                          onInput={autoResize}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              sportDescription: e.target.value,
+                            })
+                          }
+                        />
 
-                      <label>Soubor GPX/JSON:</label>
-                      <input
-                        className="sport-file"
-                        type="file"
-                        accept=".gpx,.json"
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            file: e.target.files[0],
-                          })
-                        }
-                      />
+                        <label>Trvání (minuty):</label>
+                        <input
+                          className="sport-input"
+                          type="number"
+                          value={formData.duration}
+                          onChange={handleDurationChange}
+                        />
 
-                      {formData.filePath && (
-                        <div className="file-download">
-                          <a
-                            href={`http://localhost:8080${formData.filePath}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            📄 Stáhnout přiložený soubor
-                          </a>
+                        <label>Vzdálenost (km):</label>
+                        <input
+                          className="sport-input"
+                          type="number"
+                          value={formData.distance}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              distance: e.target.value,
+                            })
+                          }
+                        />
+
+                        <label>Soubor GPX/JSON:</label>
+                        <input
+                          className="sport-file"
+                          type="file"
+                          accept=".gpx,.json"
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              file: e.target.files[0],
+                            })
+                          }
+                        />
+
+                        {formData.filePath && (
+                          <div className="file-download">
+                            <a
+                              href={`http://localhost:8080${formData.filePath}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              📄 Stáhnout přiložený soubor
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <>
+                        <div className="allday-row">
+                          <input
+                            type="checkbox"
+                            checked={formData.allDay}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                allDay: e.target.checked,
+                              })
+                            }
+                          />
+                          <label>Celý den</label>
                         </div>
+
+                        <label>Popis:</label>
+                        <textarea
+                          className="desc-textarea"
+                          value={formData.description}
+                          onInput={autoResize}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              description: e.target.value,
+                            })
+                          }
+                        />
+                      </>
+                    )}
+
+                    {!formData.allDay && (
+                      <div className="time-row">
+                        <div>
+                          <label>Začátek:</label>
+                          <input
+                            type="datetime-local"
+                            value={formData.start}
+                            onChange={handleStartChange}
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label>Konec:</label>
+                          <input
+                            type="datetime-local"
+                            value={formData.end}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                end: e.target.value,
+                              })
+                            }
+                            required
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="modal-buttons">
+                      <button type="submit">
+                        {selectedEvent ? "Uložit" : "Přidat"}
+                      </button>
+                      {selectedEvent && (
+                        <button
+                          type="button"
+                          className="delete-btn"
+                          onClick={handleDelete}
+                        >
+                          Smazat
+                        </button>
                       )}
-                    </div>
-                  ) : (
-                    <>
-                      <div className="allday-row">
-                        <input
-                          type="checkbox"
-                          checked={formData.allDay}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              allDay: e.target.checked,
-                            })
-                          }
-                        />
-                        <label>Celý den</label>
-                      </div>
-
-                      <label>Popis:</label>
-                      <textarea
-                        className="desc-textarea"
-                        value={formData.description}
-                        onInput={autoResize}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            description: e.target.value,
-                          })
-                        }
-                      />
-                    </>
-                  )}
-
-                  {!formData.allDay && (
-                    <div className="time-row">
-                      <div>
-                        <label>Začátek:</label>
-                        <input
-                          type="datetime-local"
-                          value={formData.start}
-                          onChange={handleStartChange}
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label>Konec:</label>
-                        <input
-                          type="datetime-local"
-                          value={formData.end}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              end: e.target.value,
-                            })
-                          }
-                          required
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="modal-buttons">
-                    <button type="submit">
-                      {selectedEvent ? "Uložit" : "Přidat"}
-                    </button>
-                    {selectedEvent && (
                       <button
                         type="button"
-                        className="delete-btn"
-                        onClick={handleDelete}
+                        className="cancel-btn"
+                        onClick={() => setShowModal(false)}
                       >
-                        Smazat
+                        Zrušit
                       </button>
-                    )}
-                    <button
-                      type="button"
-                      className="cancel-btn"
-                      onClick={() => setShowModal(false)}
-                    >
-                      Zrušit
-                    </button>
-                  </div>
-                </form>
+                    </div>
+                  </form>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
+
+          {/* Panel vpravo: souhrny za všechny týdny zobrazeného měsíce */}
+          {renderWeeklySummaryAllWeeks()}
         </div>
       </main>
     </>
