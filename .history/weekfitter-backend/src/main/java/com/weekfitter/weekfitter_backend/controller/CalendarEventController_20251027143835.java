@@ -77,28 +77,31 @@ public class CalendarEventController {
 
     /**
      * Aktualizace existující události
-     * - pokud je dodán email, událost se k tomuto uživateli přiváže
-     * - pokud email není, zachová se původní uživatel
+     *
+     * DŮLEŽITÉ: Přebírá e-mail, najde uživatele a nastaví ho do eventu,
+     * aby se při PUTu neztratilo vazby (user_id) a událost "nezmizela"
+     * z výsledku /api/events?email=...
      */
     @PutMapping("/{id}")
     public ResponseEntity<?> updateEvent(
             @PathVariable UUID id,
-            @RequestParam(required = false) String email,
+            @RequestParam String email,
             @RequestBody CalendarEvent event
     ) {
         try {
-            if (email != null && !email.isBlank()) {
-                Optional<User> userOpt = userRepository.findByEmail(email);
-                if (userOpt.isEmpty()) {
-                    return ResponseEntity.badRequest().body("Uživatel s e-mailem " + email + " nenalezen.");
-                }
-                event.setUser(userOpt.get());
+            Optional<User> userOpt = userRepository.findByEmail(email);
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.badRequest().body("Uživatel s e-mailem " + email + " nenalezen.");
             }
+
+            // Zajistit, že aktualizujeme správný záznam a zůstane navázaný na uživatele
+            event.setId(id);
+            event.setUser(userOpt.get());
 
             CalendarEvent updated = calendarEventService.updateEvent(id, event);
             return ResponseEntity.ok(updated);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body("Chyba při aktualizaci: " + e.getMessage());
         }
     }
 

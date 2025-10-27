@@ -85,7 +85,7 @@ const CalendarPage = () => {
 
       // sjednocení category/activityType + bezpečné parsování času
       const formatted = data.map((event) => {
-        const category = event.category ?? event.category ?? "OTHER";
+        const category = event.category ?? event.activityType ?? "OTHER";
         const start = new Date(event.startTime);
         const end = new Date(event.endTime);
         return {
@@ -104,6 +104,7 @@ const CalendarPage = () => {
         };
       });
 
+      // odfiltruj případné špatné časy (pokud by BE někdy poslal null/invalid)
       setEvents(
         formatted.filter(
           (e) =>
@@ -275,14 +276,15 @@ const CalendarPage = () => {
     const endTime = format(endVal, "yyyy-MM-dd'T'HH:mm");
 
     return {
-      id: base.id,
+      id: base.id, // některá DTO to vyžadují
       title: overrides.title ?? base.title,
       description: isSport
         ? (overrides.sportDescription ?? base.sportDescription ?? "")
         : (overrides.description ?? base.description ?? ""),
       startTime,
       endTime,
-      category: resolvedCategory,     // nevadí posílat oba
+      activityType: resolvedCategory, // DŮLEŽITÉ pro BE (DB sloupec activity_type)
+      category: resolvedCategory,     // necháme i category pro kompatibilitu
       allDay: isSport ? false : Boolean(overrides.allDay ?? base.allDay),
       duration: isSport ? (Number(overrides.duration ?? base.duration) || null) : null,
       distance: isSport ? (Number(overrides.distance ?? base.distance) || null) : null,
@@ -332,7 +334,8 @@ const CalendarPage = () => {
       description: formData.category === "SPORT" ? formData.sportDescription : formData.description,
       startTime: formData.start,
       endTime: formData.end,
-      category: formData.category,
+      activityType: formData.category, // ⬅︎ klíčové
+      category: formData.category,     // kompatibilita
       allDay: formData.category !== "SPORT" ? formData.allDay : false,
       duration: formData.category === "SPORT" ? (formData.duration ? Number(formData.duration) : null) : null,
       distance: formData.category === "SPORT" ? (formData.distance ? Number(formData.distance) : null) : null,
@@ -390,7 +393,7 @@ const CalendarPage = () => {
       { start, end }
     );
 
-    // Optimistická aktualizace UI
+    // Optimistická aktualizace UI (událost nezmizí ještě před fetch)
     setEvents((prev) =>
       prev.map((e) =>
         e.id === event.id ? { ...e, start: new Date(start), end: new Date(end) } : e
@@ -408,9 +411,9 @@ const CalendarPage = () => {
       );
       if (!res.ok) {
         console.error("Chyba při přesunu události:", await res.text());
-        await loadEvents();
+        await loadEvents(); // rollback / re-sync
       } else {
-        await loadEvents();
+        await loadEvents(); // re-sync z BE
       }
     } catch (error) {
       console.error("Chyba při přesunu události:", error);
@@ -426,6 +429,7 @@ const CalendarPage = () => {
       { start, end }
     );
 
+    // Optimistická aktualizace UI
     setEvents((prev) =>
       prev.map((e) =>
         e.id === event.id ? { ...e, start: new Date(start), end: new Date(end) } : e
@@ -458,7 +462,7 @@ const CalendarPage = () => {
     if (view !== Views.MONTH) return null;
 
     const monthStart = startOfMonth(date);
-    const monthEnd = endOfMonth(date);
+       const monthEnd = endOfMonth(date);
     const weeks = eachWeekOfInterval({ start: monthStart, end: monthEnd }, { weekStartsOn: 1 });
 
     const toHours = (min) => {

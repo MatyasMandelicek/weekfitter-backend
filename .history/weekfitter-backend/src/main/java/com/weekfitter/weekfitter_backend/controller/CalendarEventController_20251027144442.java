@@ -87,6 +87,7 @@ public class CalendarEventController {
             @RequestBody CalendarEvent event
     ) {
         try {
+            // přivázání/udržení uživatele
             if (email != null && !email.isBlank()) {
                 Optional<User> userOpt = userRepository.findByEmail(email);
                 if (userOpt.isEmpty()) {

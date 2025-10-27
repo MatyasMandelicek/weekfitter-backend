@@ -20,32 +20,20 @@ public class CalendarEventController {
     private final CalendarEventService calendarEventService;
     private final UserRepository userRepository;
 
-    public CalendarEventController(
-            CalendarEventService calendarEventService,
-            UserRepository userRepository,
-            CalendarEventRepository calendarEventRepository
-    ) {
+    public CalendarEventController(CalendarEventService calendarEventService, UserRepository userRepository) {
         this.calendarEventService = calendarEventService;
         this.userRepository = userRepository;
     }
 
-    /**
-     * Vrátí události pouze přihlášeného uživatele podle e-mailu
-     */
     @GetMapping
     public ResponseEntity<?> getEventsByUser(@RequestParam String email) {
         Optional<User> userOpt = userRepository.findByEmail(email);
         if (userOpt.isEmpty()) {
             return ResponseEntity.badRequest().body("Uživatel s e-mailem " + email + " nenalezen.");
         }
-
-        List<CalendarEvent> events = calendarEventService.getEventsByUser(userOpt.get());
-        return ResponseEntity.ok(events);
+        return ResponseEntity.ok(calendarEventService.getEventsByUser(userOpt.get()));
     }
 
-    /**
-     * Vytvoří novou událost a automaticky ji přiřadí k uživateli
-     */
     @PostMapping
     public ResponseEntity<?> createEvent(@RequestParam String email, @RequestBody CalendarEvent event) {
         Optional<User> userOpt = userRepository.findByEmail(email);
@@ -53,58 +41,33 @@ public class CalendarEventController {
             return ResponseEntity.badRequest().body("Uživatel s e-mailem " + email + " nenalezen.");
         }
 
-        User user = userOpt.get();
-        event.setUser(user); // napojení události na uživatele
-
-        try {
-            CalendarEvent saved = calendarEventService.createEvent(event);
-            return ResponseEntity.ok(saved);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.internalServerError().body("Chyba při vytváření události: " + e.getMessage());
-        }
+        event.setUser(userOpt.get());
+        CalendarEvent saved = calendarEventService.createEvent(event);
+        return ResponseEntity.ok(saved);
     }
 
-    /**
-     * Vrátí detail události podle ID
-     */
-    @GetMapping("/{id}")
-    public ResponseEntity<CalendarEvent> getEventById(@PathVariable UUID id) {
-        return calendarEventService.getEventById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    /**
-     * Aktualizace existující události
-     * - pokud je dodán email, událost se k tomuto uživateli přiváže
-     * - pokud email není, zachová se původní uživatel
-     */
     @PutMapping("/{id}")
     public ResponseEntity<?> updateEvent(
             @PathVariable UUID id,
             @RequestParam(required = false) String email,
-            @RequestBody CalendarEvent event
+            @RequestBody CalendarEvent updatedEvent
     ) {
         try {
+            // doplnění uživatele, pokud přišel email
             if (email != null && !email.isBlank()) {
                 Optional<User> userOpt = userRepository.findByEmail(email);
                 if (userOpt.isEmpty()) {
                     return ResponseEntity.badRequest().body("Uživatel s e-mailem " + email + " nenalezen.");
                 }
-                event.setUser(userOpt.get());
+                updatedEvent.setUser(userOpt.get());
             }
-
-            CalendarEvent updated = calendarEventService.updateEvent(id, event);
-            return ResponseEntity.ok(updated);
+            CalendarEvent result = calendarEventService.updateEvent(id, updatedEvent);
+            return ResponseEntity.ok(result);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    /**
-     * Smazání události
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEvent(@PathVariable UUID id) {
         calendarEventService.deleteEvent(id);

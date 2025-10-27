@@ -83,36 +83,22 @@ const CalendarPage = () => {
         return;
       }
 
-      // sjednocení category/activityType + bezpečné parsování času
-      const formatted = data.map((event) => {
-        const category = event.category ?? event.category ?? "OTHER";
-        const start = new Date(event.startTime);
-        const end = new Date(event.endTime);
-        return {
-          id: event.id,
-          title: event.title,
-          start,
-          end,
-          description: event.description,
-          category,
-          allDay: Boolean(event.allDay),
-          duration: event.duration,
-          distance: event.distance,
-          sportDescription: event.sportDescription,
-          sportType: event.sportType ?? "OTHER",
-          filePath: event.filePath,
-        };
-      });
+      const formatted = data.map((event) => ({
+        id: event.id,
+        title: event.title,
+        start: new Date(event.startTime),
+        end: new Date(event.endTime),
+        description: event.description,
+        category: event.category,
+        allDay: Boolean(event.allDay),
+        duration: event.duration,
+        distance: event.distance,
+        sportDescription: event.sportDescription,
+        sportType: event.sportType,
+        filePath: event.filePath,
+      }));
 
-      setEvents(
-        formatted.filter(
-          (e) =>
-            e.start instanceof Date &&
-            !isNaN(e.start) &&
-            e.end instanceof Date &&
-            !isNaN(e.end)
-        )
-      );
+      setEvents(formatted);
     } catch (error) {
       console.error("Chyba při načítání událostí:", error);
       setEvents([]);
@@ -259,33 +245,24 @@ const CalendarPage = () => {
     }
   };
 
-  // Pomocná funkce: sjednocené payloady pro backend (posíláme i activityType)
+  // Pomocná funkce: sjednocené payloady pro backend (bez časové zóny a bez zbytečných polí)
   const buildPayloadFromEvent = (base, overrides = {}) => {
-    const resolvedCategory = (overrides.category ?? base.category) || "OTHER";
-    const isSport = resolvedCategory === "SPORT";
-
-    const startVal = overrides.start
-      ? new Date(overrides.start)
-      : new Date(base.start);
-    const endVal = overrides.end
-      ? new Date(overrides.end)
-      : new Date(base.end);
-
-    const startTime = format(startVal, "yyyy-MM-dd'T'HH:mm");
-    const endTime = format(endVal, "yyyy-MM-dd'T'HH:mm");
-
+    const isSport = (overrides.category ?? base.category) === "SPORT";
     return {
-      id: base.id,
       title: overrides.title ?? base.title,
       description: isSport
         ? (overrides.sportDescription ?? base.sportDescription ?? "")
         : (overrides.description ?? base.description ?? ""),
-      startTime,
-      endTime,
-      category: resolvedCategory,     // nevadí posílat oba
+      startTime: overrides.start
+        ? format(new Date(overrides.start), "yyyy-MM-dd'T'HH:mm")
+        : (overrides.startTime ?? format(new Date(base.start), "yyyy-MM-dd'T'HH:mm")),
+      endTime: overrides.end
+        ? format(new Date(overrides.end), "yyyy-MM-dd'T'HH:mm")
+        : (overrides.endTime ?? format(new Date(base.end), "yyyy-MM-dd'T'HH:mm")),
+      category: overrides.category ?? base.category ?? "OTHER",
       allDay: isSport ? false : Boolean(overrides.allDay ?? base.allDay),
-      duration: isSport ? (Number(overrides.duration ?? base.duration) || null) : null,
-      distance: isSport ? (Number(overrides.distance ?? base.distance) || null) : null,
+      duration: isSport ? Number(overrides.duration ?? base.duration ?? 0) || null : null,
+      distance: isSport ? Number(overrides.distance ?? base.distance ?? 0) || null : null,
       sportDescription: isSport ? (overrides.sportDescription ?? base.sportDescription ?? "") : null,
       sportType: isSport ? (overrides.sportType ?? base.sportType ?? "OTHER") : null,
       filePath: overrides.filePath ?? base.filePath ?? null,
@@ -326,7 +303,7 @@ const CalendarPage = () => {
       }
     }
 
-    // Payload pro backend – posíláme i activityType
+    // Payload pro backend – BEZ časových zón (lokální "yyyy-MM-dd'T'HH:mm")
     const payload = {
       title: formData.title,
       description: formData.category === "SPORT" ? formData.sportDescription : formData.description,
@@ -345,6 +322,7 @@ const CalendarPage = () => {
     const url = selectedEvent
       ? `http://localhost:8080/api/events/${selectedEvent.id}?email=${encodeURIComponent(email)}`
       : `http://localhost:8080/api/events?email=${encodeURIComponent(email)}`;
+
 
     try {
       const res = await fetch(url, {
@@ -382,11 +360,15 @@ const CalendarPage = () => {
     }
   };
 
-  // === Drag & Drop (přesun) — pošli activityType + email + optimistický update ===
+  // === Drag & Drop (přesun) — oprava: neposílej ISO s "Z", ale stejný formát jako při ukládání + udrž optimisticky stav ===
   const handleEventDrop = async ({ event, start, end }) => {
-    const email = localStorage.getItem("userEmail");
+    const email = localStorage.getItem("userEmail"); // ⬅︎ přidáno
     const payload = buildPayloadFromEvent(
-      { ...event, start: event.start, end: event.end },
+      {
+        ...event,
+        start: event.start,
+        end: event.end,
+      },
       { start, end }
     );
 
@@ -399,7 +381,7 @@ const CalendarPage = () => {
 
     try {
       const res = await fetch(
-        `http://localhost:8080/api/events/${event.id}?email=${encodeURIComponent(email)}`,
+        `http://localhost:8080/api/events/${event.id}?email=${encodeURIComponent(email)}`, // ⬅︎ přidán ?email=
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -407,8 +389,8 @@ const CalendarPage = () => {
         }
       );
       if (!res.ok) {
-        console.error("Chyba při přesunu události:", await res.text());
         await loadEvents();
+        console.error("Chyba při přesunu události:", await res.text());
       } else {
         await loadEvents();
       }
@@ -418,14 +400,19 @@ const CalendarPage = () => {
     }
   };
 
+
   // === Resize (změna délky) — stejný přístup jako u drop ===
   const handleEventResize = async ({ event, start, end }) => {
-    const email = localStorage.getItem("userEmail");
     const payload = buildPayloadFromEvent(
-      { ...event, start: event.start, end: event.end },
+      {
+        ...event,
+        start: event.start,
+        end: event.end,
+      },
       { start, end }
     );
 
+    // Optimistická aktualizace UI
     setEvents((prev) =>
       prev.map((e) =>
         e.id === event.id ? { ...e, start: new Date(start), end: new Date(end) } : e
@@ -433,17 +420,14 @@ const CalendarPage = () => {
     );
 
     try {
-      const res = await fetch(
-        `http://localhost:8080/api/events/${event.id}?email=${encodeURIComponent(email)}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }
-      );
+      const res = await fetch(`http://localhost:8080/api/events/${event.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
       if (!res.ok) {
-        console.error("Chyba při změně délky události:", await res.text());
         await loadEvents();
+        console.error("Chyba při změně délky události:", await res.text());
       } else {
         await loadEvents();
       }
@@ -476,15 +460,15 @@ const CalendarPage = () => {
             events={events}
             startAccessor="start"
             endAccessor="end"
-            selectable
+            selectable="ignoreEvents"              // lepší chování výběru na touch/trackpadu
             resizable
             onEventDrop={handleEventDrop}
             onEventResize={handleEventResize}
             onSelectSlot={handleSelectSlot}
             onSelectEvent={handleSelectEvent}
             onDoubleClickEvent={handleSelectEvent}
-            longPressThreshold={50}
-            popup
+            longPressThreshold={50}                // zlepší tap/klik detekci na touchpadech
+            popup                                   // rozbalí více událostí v měsíci
             eventPropGetter={getEventStyle}
             components={{ event: CustomEvent }}
             view={view}
@@ -564,14 +548,14 @@ const CalendarPage = () => {
               events={events}
               startAccessor="start"
               endAccessor="end"
-              selectable
+              selectable="ignoreEvents"            // lepší chování výběru na touch/trackpadu
               resizable
               onEventDrop={handleEventDrop}
               onEventResize={handleEventResize}
               onSelectSlot={handleSelectSlot}
               onSelectEvent={handleSelectEvent}
               onDoubleClickEvent={handleSelectEvent}
-              longPressThreshold={50}
+              longPressThreshold={50}              // zlepší tap/klik detekci na touchpadech
               popup
               eventPropGetter={getEventStyle}
               components={{ event: CustomEvent }}

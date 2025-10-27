@@ -26,7 +26,7 @@ public class CalendarEvent {
     private LocalDateTime endTime;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "category", nullable = false)
+    @Column(name = "activity_type", nullable = false)
     private ActivityType category; // SPORT, WORK, SCHOOL, REST, OTHER
 
     @Enumerated(EnumType.STRING)

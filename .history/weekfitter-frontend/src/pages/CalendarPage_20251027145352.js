@@ -332,6 +332,7 @@ const CalendarPage = () => {
       description: formData.category === "SPORT" ? formData.sportDescription : formData.description,
       startTime: formData.start,
       endTime: formData.end,
+      activityType: formData.category,
       category: formData.category,
       allDay: formData.category !== "SPORT" ? formData.allDay : false,
       duration: formData.category === "SPORT" ? (formData.duration ? Number(formData.duration) : null) : null,

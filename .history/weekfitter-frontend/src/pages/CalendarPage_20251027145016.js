@@ -85,7 +85,7 @@ const CalendarPage = () => {
 
       // sjednocení category/activityType + bezpečné parsování času
       const formatted = data.map((event) => {
-        const category = event.category ?? event.category ?? "OTHER";
+        const category = event.category ?? event.activityType ?? "OTHER";
         const start = new Date(event.startTime);
         const end = new Date(event.endTime);
         return {
@@ -282,6 +282,7 @@ const CalendarPage = () => {
         : (overrides.description ?? base.description ?? ""),
       startTime,
       endTime,
+      activityType: resolvedCategory, // KLÍČ PRO BE
       category: resolvedCategory,     // nevadí posílat oba
       allDay: isSport ? false : Boolean(overrides.allDay ?? base.allDay),
       duration: isSport ? (Number(overrides.duration ?? base.duration) || null) : null,
@@ -332,6 +333,7 @@ const CalendarPage = () => {
       description: formData.category === "SPORT" ? formData.sportDescription : formData.description,
       startTime: formData.start,
       endTime: formData.end,
+      activityType: formData.category,
       category: formData.category,
       allDay: formData.category !== "SPORT" ? formData.allDay : false,
       duration: formData.category === "SPORT" ? (formData.duration ? Number(formData.duration) : null) : null,
