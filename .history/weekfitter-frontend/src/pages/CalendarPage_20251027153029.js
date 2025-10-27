@@ -342,7 +342,7 @@ const CalendarPage = () => {
       sportType: formData.category === "SPORT" ? formData.sportType : null,
       filePath: uploadedFilePath || null,
       notify,
-      notifyBefore,
+      notifyBefore: notify ? notifyBefore : null,
     };
 
     const method = selectedEvent ? "PUT" : "POST";

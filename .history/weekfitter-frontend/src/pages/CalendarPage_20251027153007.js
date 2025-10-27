@@ -341,8 +341,7 @@ const CalendarPage = () => {
       sportDescription: formData.category === "SPORT" ? formData.sportDescription : null,
       sportType: formData.category === "SPORT" ? formData.sportType : null,
       filePath: uploadedFilePath || null,
-      notify,
-      notifyBefore,
+      
     };
 
     const method = selectedEvent ? "PUT" : "POST";

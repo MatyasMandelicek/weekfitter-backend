@@ -66,9 +66,9 @@ public class CalendarEventController {
             CalendarEvent saved = calendarEventService.createEvent(event);
 
             // === Vytvoření notifikace, pokud uživatel zvolil upozornění ===
-            if (event.getStartTime() != null && Boolean.TRUE.equals(event.getNotify())) {
-                int notifyBefore = (event.getNotifyBefore() != null) ? event.getNotifyBefore() : 60;
-                LocalDateTime notifyAt = event.getStartTime().minusMinutes(notifyBefore);
+        if (event.getStartTime() != null && Boolean.TRUE.equals(event.getNotifyEnabled())) {
+            int notifyBefore = (event.getNotifyBefore() != null) ? event.getNotifyBefore() : 60;
+            LocalDateTime notifyAt = event.getStartTime().minusMinutes(notifyBefore);
 
 
                 notificationService.createNotification(saved, notifyAt);

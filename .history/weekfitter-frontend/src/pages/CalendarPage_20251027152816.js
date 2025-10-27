@@ -341,8 +341,6 @@ const CalendarPage = () => {
       sportDescription: formData.category === "SPORT" ? formData.sportDescription : null,
       sportType: formData.category === "SPORT" ? formData.sportType : null,
       filePath: uploadedFilePath || null,
-      notify,
-      notifyBefore,
     };
 
     const method = selectedEvent ? "PUT" : "POST";
@@ -724,38 +722,37 @@ const CalendarPage = () => {
                     </div>
                   )}
 
-                  <div className="notification-section">
-                    <h4>Upozornění</h4>
-                    <div className="notify-row">
-                      <input
-                        type="checkbox"
-                        id="notify"
-                        checked={notify}
-                        onChange={() => setNotify(!notify)}
-                      />
-                      <label htmlFor="notify">Zaslat e-mailové upozornění</label>
-                    </div>
+<div className="notification-section">
+  <h4>Upozornění</h4>
+  <div className="notify-row">
+    <input
+      type="checkbox"
+      id="notify"
+      checked={notify}
+      onChange={() => setNotify(!notify)}
+    />
+    <label htmlFor="notify">Zaslat e-mailové upozornění</label>
+  </div>
 
-                    {notify && (
-                      <>
-                        <label>Čas upozornění před začátkem:</label>
-                        <select
-                          className="notify-select"
-                          value={notifyBefore}
-                          onChange={(e) => setNotifyBefore(Number(e.target.value))}
-                        >
-                          <option value={5}>5 minut</option>
-                          <option value={15}>15 minut</option>
-                          <option value={30}>30 minut</option>
-                          <option value={60}>1 hodina</option>
-                          <option value={120}>2 hodiny</option>
-                          <option value={1440}>1 den</option>
-                          <option value={2880}>2 dny</option>
-                          <option value={10080}>1 týden</option>
-                        </select>
-                      </>
-                    )}
-                  </div>
+  {notify && (
+    <>
+      <label>Čas upozornění před začátkem:</label>
+      <select
+        className="notify-select"
+        value={notifyBefore}
+        onChange={(e) => setNotifyBefore(Number(e.target.value))}
+      >
+        <option value={5}>5 minut</option>
+        <option value={15}>15 minut</option>
+        <option value={30}>30 minut</option>
+        <option value={60}>1 hodina</option>
+        <option value={180}>3 hodiny</option>
+        <option value={1440}>1 den</option>
+      </select>
+    </>
+  )}
+</div>
+
 
                   <div className="modal-buttons">
                     <button type="submit">{selectedEvent ? "Uložit" : "Přidat"}</button>

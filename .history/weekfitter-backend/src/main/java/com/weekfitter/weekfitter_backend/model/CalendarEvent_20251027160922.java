@@ -41,10 +41,7 @@ public class CalendarEvent {
 
     private String sportDescription;
 
-    @Column(nullable = false)
-    private Boolean notify;
-
-    @Column(name = "notify_before")
+    private boolean notify;
     private Integer notifyBefore;
 
 

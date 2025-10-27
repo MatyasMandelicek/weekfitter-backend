@@ -341,8 +341,6 @@ const CalendarPage = () => {
       sportDescription: formData.category === "SPORT" ? formData.sportDescription : null,
       sportType: formData.category === "SPORT" ? formData.sportType : null,
       filePath: uploadedFilePath || null,
-      notify,
-      notifyBefore,
     };
 
     const method = selectedEvent ? "PUT" : "POST";
@@ -748,10 +746,10 @@ const CalendarPage = () => {
                           <option value={15}>15 minut</option>
                           <option value={30}>30 minut</option>
                           <option value={60}>1 hodina</option>
-                          <option value={120}>2 hodiny</option>
+                          <option value={180}>3 hodiny</option>
                           <option value={1440}>1 den</option>
                           <option value={2880}>2 dny</option>
-                          <option value={10080}>1 týden</option>
+                          <opt
                         </select>
                       </>
                     )}

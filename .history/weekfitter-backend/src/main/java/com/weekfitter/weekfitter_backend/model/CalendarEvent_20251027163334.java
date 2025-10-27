@@ -41,11 +41,11 @@ public class CalendarEvent {
 
     private String sportDescription;
 
-    @Column(nullable = false)
-    private Boolean notify;
+    @Column(name = "notify", nullable = false)
+    private Boolean notifyEna = false;
 
     @Column(name = "notify_before")
-    private Integer notifyBefore;
+    private Integer notifyBefore = 60;
 
 
     @Column(name = "file_path")

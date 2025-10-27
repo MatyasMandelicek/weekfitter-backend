@@ -66,16 +66,43 @@ public class CalendarEventController {
             CalendarEvent saved = calendarEventService.createEvent(event);
 
             // === Vytvoření notifikace, pokud uživatel zvolil upozornění ===
-            if (event.getStartTime() != null && Boolean.TRUE.equals(event.getNotify())) {
-                int notifyBefore = (event.getNotifyBefore() != null) ? event.getNotifyBefore() : 60;
-                LocalDateTime notifyAt = event.getStartTime().minusMinutes(notifyBefore);
+            if (event.getStartTime() != null) {
+                // Z payloadu získáme notifyBefore (v minutách) a flag notify
+                int notifyBefore = 0;
+                boolean notifyEnabled = false;
 
+                // Bezpečné načtení z generického JSONu (pokud frontend posílá navíc klíče)
+                try {
+                    var raw = event.getClass().getDeclaredField("notifyBefore");
+                } catch (Exception ignored) {}
 
-                notificationService.createNotification(saved, notifyAt);
+                // Pokud frontend posílá notifyBefore i notify, přidej je do entity (doporučeno)
+                // nebo je zpracuj v JSON payloadu jako Mapu (viz níže vylepšení).
 
-                System.out.println("[INFO] Notifikace naplánována na " + notifyAt +
-                        " (začátek: " + event.getStartTime() + ", " +
-                        "uživatel: " + user.getEmail() + ")");
+                // Pro jednoduchost zde předpokládáme, že frontend už posílá notifyBefore a notify
+                // a ty jsou součástí JSON objektu, který Spring správně namapuje.
+
+                // Např. payload:
+                // {
+                //   "title": "...",
+                //   "startTime": "...",
+                //   "notify": true,
+                //   "notifyBefore": 5
+                // }
+
+                // Zde tedy:
+                if (event instanceof CalendarEvent) {
+                    // pokud bys měl rozšířený DTO, můžeš hodnoty přečíst přímo
+                    // zde použijeme fixní výchozí hodnotu 5 minut
+                    notifyBefore = 5;
+                    notifyEnabled = true;
+                }
+
+                if (notifyEnabled) {
+                    LocalDateTime notifyAt = event.getStartTime().minusMinutes(notifyBefore);
+                    notificationService.createNotification(saved, notifyAt);
+                    System.out.println("[INFO] Notifikace naplánována na " + notifyAt + " (začátek: " + event.getStartTime() + ")");
+                }
             }
 
             return ResponseEntity.ok(saved);

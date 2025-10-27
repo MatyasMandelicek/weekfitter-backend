@@ -40,13 +40,7 @@ public class CalendarEvent {
     private Double distance;
 
     private String sportDescription;
-
-    @Column(nullable = false)
-    private Boolean notify;
-
-    @Column(name = "notify_before")
-    private Integer notifyBefore;
-
+    
 
     @Column(name = "file_path")
     private String filePath; // uložený GPX/JSON soubor

@@ -5,11 +5,12 @@ import com.weekfitter.weekfitter_backend.model.User;
 import com.weekfitter.weekfitter_backend.respository.CalendarEventRepository;
 import com.weekfitter.weekfitter_backend.respository.UserRepository;
 import com.weekfitter.weekfitter_backend.service.CalendarEventService;
-import com.weekfitter.weekfitter_backend.service.NotificationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import com.weekfitter.weekfitter_backend.service.NotificationService;
 import java.time.LocalDateTime;
+
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,14 +25,13 @@ public class CalendarEventController {
     private final UserRepository userRepository;
 
     public CalendarEventController(
+            
             CalendarEventService calendarEventService,
             UserRepository userRepository,
-            CalendarEventRepository calendarEventRepository,
-            NotificationService notificationService
+            CalendarEventRepository calendarEventRepository
     ) {
         this.calendarEventService = calendarEventService;
         this.userRepository = userRepository;
-        this.notificationService = notificationService;
     }
 
     /**
@@ -49,8 +49,7 @@ public class CalendarEventController {
     }
 
     /**
-     * Vytvoří novou událost a automaticky ji přiřadí k uživateli.
-     * Pokud je zvoleno upozornění, vytvoří i záznam v tabulce notifications.
+     * Vytvoří novou událost a automaticky ji přiřadí k uživateli
      */
     @PostMapping
     public ResponseEntity<?> createEvent(@RequestParam String email, @RequestBody CalendarEvent event) {
@@ -60,24 +59,10 @@ public class CalendarEventController {
         }
 
         User user = userOpt.get();
-        event.setUser(user);
+        event.setUser(user); // napojení události na uživatele
 
         try {
             CalendarEvent saved = calendarEventService.createEvent(event);
-
-            // === Vytvoření notifikace, pokud uživatel zvolil upozornění ===
-            if (event.getStartTime() != null && Boolean.TRUE.equals(event.getNotify())) {
-                int notifyBefore = (event.getNotifyBefore() != null) ? event.getNotifyBefore() : 60;
-                LocalDateTime notifyAt = event.getStartTime().minusMinutes(notifyBefore);
-
-
-                notificationService.createNotification(saved, notifyAt);
-
-                System.out.println("[INFO] Notifikace naplánována na " + notifyAt +
-                        " (začátek: " + event.getStartTime() + ", " +
-                        "uživatel: " + user.getEmail() + ")");
-            }
-
             return ResponseEntity.ok(saved);
         } catch (Exception e) {
             e.printStackTrace();
@@ -97,6 +82,8 @@ public class CalendarEventController {
 
     /**
      * Aktualizace existující události
+     * - pokud je dodán email, událost se k tomuto uživateli přiváže
+     * - pokud email není, zachová se původní uživatel
      */
     @PutMapping("/{id}")
     public ResponseEntity<?> updateEvent(
