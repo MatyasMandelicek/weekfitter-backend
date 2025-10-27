@@ -113,25 +113,39 @@ public class CalendarEventController {
                 event.setUser(userOpt.get());
             }
 
+            // Najdi původní událost, abychom mohli porovnat časy
+            Optional<CalendarEvent> existingOpt = calendarEventService.getEventById(id);
+            CalendarEvent previous = existingOpt.orElse(null);
+
             CalendarEvent updated = calendarEventService.updateEvent(id, event);
 
-            // 🔁 Aktualizace nebo vytvoření notifikace
-            notificationService.deleteByEvent(updated.getId());
-
+            // === Pokud událost má aktivní upozornění, aktualizuj notifikaci ===
             if (Boolean.TRUE.equals(updated.getNotify()) && updated.getStartTime() != null) {
                 int notifyBefore = (updated.getNotifyBefore() != null) ? updated.getNotifyBefore() : 60;
                 LocalDateTime newNotifyAt = updated.getStartTime().minusMinutes(notifyBefore);
-                notificationService.createNotification(updated, newNotifyAt);
-                System.out.println("[INFO] Notifikace aktualizována na nový čas: " + newNotifyAt);
+
+                boolean shouldUpdateNotification = false;
+
+                // Pokud se startTime změnil oproti původnímu
+                if (previous == null || !previous.getStartTime().equals(updated.getStartTime())) {
+                    shouldUpdateNotification = true;
+                }
+
+                if (shouldUpdateNotification) {
+                    notificationService.deleteByEvent(updated.getId());
+                    notificationService.createNotification(updated, newNotifyAt);
+                    System.out.println("[INFO] Notifikace aktualizována (drag&drop nebo editace): " + newNotifyAt);
+                }
             }
 
             return ResponseEntity.ok(updated);
 
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.badRequest().body("Chyba při aktualizaci události: " + e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
 
 
     /**

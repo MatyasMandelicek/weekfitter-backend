@@ -98,40 +98,43 @@ public class CalendarEventController {
     /**
      * Aktualizace existující události
      */
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateEvent(
-            @PathVariable UUID id,
-            @RequestParam(required = false) String email,
-            @RequestBody CalendarEvent event
-    ) {
-        try {
-            if (email != null && !email.isBlank()) {
-                Optional<User> userOpt = userRepository.findByEmail(email);
-                if (userOpt.isEmpty()) {
-                    return ResponseEntity.badRequest().body("Uživatel s e-mailem " + email + " nenalezen.");
-                }
-                event.setUser(userOpt.get());
+@PutMapping("/{id}")
+public ResponseEntity<?> updateEvent(
+        @PathVariable UUID id,
+        @RequestParam(required = false) String email,
+        @RequestBody CalendarEvent event
+) {
+    try {
+        if (email != null && !email.isBlank()) {
+            Optional<User> userOpt = userRepository.findByEmail(email);
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.badRequest().body("Uživatel s e-mailem " + email + " nenalezen.");
             }
-
-            CalendarEvent updated = calendarEventService.updateEvent(id, event);
-
-            // 🔁 Aktualizace nebo vytvoření notifikace
-            notificationService.deleteByEvent(updated.getId());
-
-            if (Boolean.TRUE.equals(updated.getNotify()) && updated.getStartTime() != null) {
-                int notifyBefore = (updated.getNotifyBefore() != null) ? updated.getNotifyBefore() : 60;
-                LocalDateTime newNotifyAt = updated.getStartTime().minusMinutes(notifyBefore);
-                notificationService.createNotification(updated, newNotifyAt);
-                System.out.println("[INFO] Notifikace aktualizována na nový čas: " + newNotifyAt);
-            }
-
-            return ResponseEntity.ok(updated);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body("Chyba při aktualizaci události: " + e.getMessage());
+            event.setUser(userOpt.get());
         }
+
+        // === 1️⃣ Aktualizace události ===
+        CalendarEvent updated = calendarEventService.updateEvent(id, event);
+
+        // === 2️⃣ Pokud má událost aktivní notifikaci, aktualizuj i její čas ===
+        if (updated.isNotify() && updated.getStartTime() != null) {
+            int notifyBefore = (updated.getNotifyBefore() != null) ? updated.getNotifyBefore() : 60;
+            LocalDateTime newNotifyAt = updated.getStartTime().minusMinutes(notifyBefore);
+
+            // Smazat staré notifikace a vytvořit novou
+            notificationService.deleteByEvent(updated.getId());
+            notificationService.createNotification(updated, newNotifyAt);
+
+            System.out.println("[INFO] Notifikace aktualizována: nový čas " + newNotifyAt);
+        }
+
+        return ResponseEntity.ok(updated);
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.badRequest().body(e.getMessage());
     }
+}
 
 
     /**

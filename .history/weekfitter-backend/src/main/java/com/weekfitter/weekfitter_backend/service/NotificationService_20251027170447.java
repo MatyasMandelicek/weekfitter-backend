@@ -36,7 +36,6 @@ public class NotificationService {
         notificationRepository.save(notification);
     }
 
-    @Transactional
     public void deleteByEvent(UUID eventId) {
         notificationRepository.deleteAllByEventId(eventId);
     }

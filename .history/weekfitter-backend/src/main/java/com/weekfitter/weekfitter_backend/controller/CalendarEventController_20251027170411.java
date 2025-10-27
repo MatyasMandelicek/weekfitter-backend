@@ -113,23 +113,26 @@ public class CalendarEventController {
                 event.setUser(userOpt.get());
             }
 
+            // === 1️Aktualizace události ===
             CalendarEvent updated = calendarEventService.updateEvent(id, event);
 
-            // 🔁 Aktualizace nebo vytvoření notifikace
-            notificationService.deleteByEvent(updated.getId());
-
-            if (Boolean.TRUE.equals(updated.getNotify()) && updated.getStartTime() != null) {
+            // ===Pokud má událost aktivní notifikaci, aktualizuj i její čas ===
+            if (updated.isNotify() && updated.getStartTime() != null) {
                 int notifyBefore = (updated.getNotifyBefore() != null) ? updated.getNotifyBefore() : 60;
                 LocalDateTime newNotifyAt = updated.getStartTime().minusMinutes(notifyBefore);
+
+                // Smazat staré notifikace a vytvořit novou
+                notificationService.deleteByEvent(updated.getId());
                 notificationService.createNotification(updated, newNotifyAt);
-                System.out.println("[INFO] Notifikace aktualizována na nový čas: " + newNotifyAt);
+
+                System.out.println("[INFO] Notifikace aktualizována: nový čas " + newNotifyAt);
             }
 
             return ResponseEntity.ok(updated);
 
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.badRequest().body("Chyba při aktualizaci události: " + e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 

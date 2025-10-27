@@ -84,7 +84,7 @@ public class CalendarEventService {
                         existing.setCategory(updatedEvent.getCategory());
                     existing.setAllDay(updatedEvent.isAllDay());
 
-                    // --- Zachovat notify a notifyBefore ---
+                    // --- 🔔 Zachovat notify a notifyBefore ---
                     if (updatedEvent.getNotify() != null)
                         existing.setNotify(updatedEvent.getNotify());
                     if (updatedEvent.getNotifyBefore() != null)

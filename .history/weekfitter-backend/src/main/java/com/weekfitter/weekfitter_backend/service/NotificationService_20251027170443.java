@@ -36,10 +36,9 @@ public class NotificationService {
         notificationRepository.save(notification);
     }
 
-    @Transactional
     public void deleteByEvent(UUID eventId) {
-        notificationRepository.deleteAllByEventId(eventId);
-    }
+    notificationRepository.deleteAllByEventId(eventId);
+}
 
     /**
      * Odesílá všechny neodeslané notifikace, jejichž čas notifyAt již nastal.

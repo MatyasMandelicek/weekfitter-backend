@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -36,11 +35,7 @@ public class NotificationService {
         notificationRepository.save(notification);
     }
 
-    @Transactional
-    public void deleteByEvent(UUID eventId) {
-        notificationRepository.deleteAllByEventId(eventId);
-    }
-
+    
     /**
      * Odesílá všechny neodeslané notifikace, jejichž čas notifyAt již nastal.
      */
