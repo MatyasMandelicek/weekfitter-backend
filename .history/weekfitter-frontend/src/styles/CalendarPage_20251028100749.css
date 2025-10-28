@@ -304,7 +304,6 @@
 /* --- delete & cancel zůstávají původní --- */
 .modal-content .delete-btn {
   background-color: #dc3545;
-  border-radius: 25px;
 }
 
 .modal-content .delete-btn:hover {
@@ -313,12 +312,10 @@
 
 .modal-content .cancel-btn {
   background-color: #6c757d;
-  border-radius: 25px;
 }
 
 .modal-content .cancel-btn:hover {
   background-color: #5a6268;
-  
 }
 
 /* --- Sportovní sekce --- */
@@ -442,7 +439,7 @@
   justify-content: space-between;
   gap: 10px;
   flex-wrap: wrap;
-  font-size: 0.8rem;
+  font-size: ;
 }
 
 .notify-row label {

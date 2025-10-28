@@ -773,10 +773,10 @@ const CalendarPage = () => {
 
                         <button
                           type="button"
-                          className="close-notify-btn"
+                          className="cls"
                           onClick={() => setNotifications(notifications.filter((_, idx) => idx !== i))}
                         >
-                          X
+                          ❌
                         </button>
                       </div>
                     ))}
@@ -785,7 +785,7 @@ const CalendarPage = () => {
                       <button
                         type="button"
                         onClick={() => setNotifications([...notifications, 60])}
-                        className="add-notify-btn"
+                        className="btn-add"
                       >
                         Další upozornění
                       </button>
