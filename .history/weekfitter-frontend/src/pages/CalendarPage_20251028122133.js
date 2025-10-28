@@ -604,14 +604,14 @@ const CalendarPage = () => {
           <h2>Kalendář aktivit</h2>
 
           {view === Views.MONTH && (
-            <button
-              className="export-btn"
-              onClick={handleExportPNG}
-              title="Uložit aktuální měsíc jako obrázek"
-            >
-              Exportovat jako PNG
-            </button>
-          )}
+  <button
+    className="export-btn"
+    onClick={handleExportPNG}
+    title="Uložit aktuální měsíc jako obrázek"
+  >
+    📸 Exportovat jako PNG
+  </button>
+)}
 
 
           {view === Views.MONTH ? (

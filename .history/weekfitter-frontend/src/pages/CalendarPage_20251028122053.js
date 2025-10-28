@@ -565,54 +565,14 @@ const CalendarPage = () => {
     );
   };
 
-    // === Export měsíčního pohledu jako PNG ===
-  const handleExportPNG = async () => {
-    if (view !== Views.MONTH) {
-      alert("Export je dostupný pouze v měsíčním pohledu.");
-      return;
-    }
 
-    const exportElement = document.querySelector(".calendar-with-summary");
-    if (!exportElement) {
-      alert("Nelze najít obsah k exportu.");
-      return;
-    }
-
-    try {
-      const canvas = await html2canvas(exportElement, {
-        backgroundColor: "#ffffff",
-        scale: 2,
-        useCORS: true,
-      });
-
-      const link = document.createElement("a");
-      link.download = `WeekFitter-Mesic-${format(date, "MM-yyyy")}.png`;
-      link.href = canvas.toDataURL("image/png");
-      link.click();
-    } catch (err) {
-      console.error("Chyba při exportu:", err);
-      alert("Došlo k chybě při exportu kalendáře.");
-    }
-  };
-
-
+  
   return (
     <>
       <Header />
       <main className="calendar-container">
         <div className="calendar-card">
           <h2>Kalendář aktivit</h2>
-
-          {view === Views.MONTH && (
-            <button
-              className="export-btn"
-              onClick={handleExportPNG}
-              title="Uložit aktuální měsíc jako obrázek"
-            >
-              Exportovat jako PNG
-            </button>
-          )}
-
 
           {view === Views.MONTH ? (
             renderWeeklySummaryAllWeeks()

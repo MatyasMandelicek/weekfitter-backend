@@ -609,7 +609,7 @@ const CalendarPage = () => {
               onClick={handleExportPNG}
               title="Uložit aktuální měsíc jako obrázek"
             >
-              Exportovat jako PNG
+              📸 Exportovat jako PNG
             </button>
           )}
 
