@@ -70,22 +70,24 @@ public class CalendarEvent {
     private void applyDefaults() {
         if (category == null) category = ActivityType.OTHER;
 
-        // Automatika konce: primárně podle duration, jinak +1 hodina
+        // Bezpečné dopočítání endTime
         if (startTime != null) {
-            if (duration != null && duration > 0) {
+            if (duration != null) {
                 endTime = startTime.plusMinutes(duration.longValue());
-            } else if (endTime == null || endTime.isBefore(startTime)) {
-                endTime = startTime.plusHours(1); // <-- požadované chování
+            } else if (endTime == null) {
+                endTime = startTime.plusMinutes(30); // fallback
+            }
+            if (endTime.isBefore(startTime)) {
+                endTime = startTime.plusMinutes(30);
             }
         }
 
-        // Defaulty pro notifikace
+        // Defaulty pro notifikace, aby nikdy nepadaly na NULL
         if (notify == null) notify = false;
         if (Boolean.TRUE.equals(notify) && notifyBefore == null) {
-            notifyBefore = 60;
+            notifyBefore = 60; // např. 60 min default
         }
     }
-
 
     // Volitelné helpery – IDE pak obvykle přestane hlásit „unused“
     public void addNotification(Notification n) {

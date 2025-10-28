@@ -242,39 +242,40 @@ const CalendarPage = () => {
     }
   };
 
-  // === Změna začátku → přepočítá konec podle duration nebo +1h ===
-  const handleStartChange = (e) => {
-    const newStart = new Date(e.target.value);
+  // === Změna začátku → případně přepočítá konec podle duration ===
+// === Změna začátku → přepočítá konec podle duration nebo +1h ===
+const handleStartChange = (e) => {
+  const newStart = new Date(e.target.value);
 
-    // Pokud je zadáno trvání, konec = start + duration
-    if (formData.duration && !isNaN(parseInt(formData.duration, 10))) {
-      const minutes = parseInt(formData.duration, 10);
-      const newEnd = addMinutes(newStart, minutes);
-      setFormData((prev) => ({
-        ...prev,
-        start: format(newStart, "yyyy-MM-dd'T'HH:mm"),
-        end: format(newEnd, "yyyy-MM-dd'T'HH:mm"),
-      }));
-    } else {
-      // Pokud není trvání a konec není ručně měněn → posuň konec o hodinu
-      const prevEnd = new Date(formData.end);
-      const prevStart = new Date(formData.start);
+  // Pokud je zadáno trvání, konec = start + duration
+  if (formData.duration && !isNaN(parseInt(formData.duration, 10))) {
+    const minutes = parseInt(formData.duration, 10);
+    const newEnd = addMinutes(newStart, minutes);
+    setFormData((prev) => ({
+      ...prev,
+      start: format(newStart, "yyyy-MM-dd'T'HH:mm"),
+      end: format(newEnd, "yyyy-MM-dd'T'HH:mm"),
+    }));
+  } else {
+    // Pokud není trvání a konec není ručně měněn → posuň konec o hodinu
+    const prevEnd = new Date(formData.end);
+    const prevStart = new Date(formData.start);
 
-      const userManuallyChangedEnd =
-        Math.abs(prevEnd - prevStart - 30 * 60 * 1000) > 60 * 1000; // odchylka od původního 30 min defaultu
+    const userManuallyChangedEnd =
+      Math.abs(prevEnd - prevStart - 30 * 60 * 1000) > 60 * 1000; // odchylka od původního 30 min defaultu
 
-      // nastav konec +1h pouze, pokud ho uživatel dosud neměnil ručně
-      const newEnd = userManuallyChangedEnd
-        ? prevEnd
-        : new Date(newStart.getTime() + 60 * 60 * 1000);
+    // nastav konec +1h pouze, pokud ho uživatel dosud neměnil ručně
+    const newEnd = userManuallyChangedEnd
+      ? prevEnd
+      : new Date(newStart.getTime() + 60 * 60 * 1000);
 
-      setFormData((prev) => ({
-        ...prev,
-        start: format(newStart, "yyyy-MM-dd'T'HH:mm"),
-        end: format(newEnd, "yyyy-MM-dd'T'HH:mm"),
-      }));
-    }
-  };
+    setFormData((prev) => ({
+      ...prev,
+      start: format(newStart, "yyyy-MM-dd'T'HH:mm"),
+      end: format(newEnd, "yyyy-MM-dd'T'HH:mm"),
+    }));
+  }
+};
 
 
   // Pomocná funkce: sjednocené payloady pro backend (posíláme i activityType)

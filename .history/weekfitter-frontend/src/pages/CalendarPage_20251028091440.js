@@ -242,6 +242,7 @@ const CalendarPage = () => {
     }
   };
 
+  // === Změna začátku → případně přepočítá konec podle duration ===
   // === Změna začátku → přepočítá konec podle duration nebo +1h ===
   const handleStartChange = (e) => {
     const newStart = new Date(e.target.value);

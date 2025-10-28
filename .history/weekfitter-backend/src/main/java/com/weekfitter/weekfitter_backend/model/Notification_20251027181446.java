@@ -17,8 +17,8 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "event_id", nullable = false)
+@ManyToOne(fetch = FetchType.LAZY, optional = false)
+@JoinColumn(name = "event_id", nullable = false)
     private CalendarEvent event;
 
     @ManyToOne(fetch = FetchType.LAZY)

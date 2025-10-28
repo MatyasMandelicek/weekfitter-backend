@@ -65,26 +65,26 @@ public class CalendarEvent {
     @Builder.Default
     private List<Notification> notifications = new ArrayList<>();
 
-    @PrePersist
-    @PreUpdate
-    private void applyDefaults() {
-        if (category == null) category = ActivityType.OTHER;
+@PrePersist
+@PreUpdate
+private void applyDefaults() {
+    if (category == null) category = ActivityType.OTHER;
 
-        // Automatika konce: primárně podle duration, jinak +1 hodina
-        if (startTime != null) {
-            if (duration != null && duration > 0) {
-                endTime = startTime.plusMinutes(duration.longValue());
-            } else if (endTime == null || endTime.isBefore(startTime)) {
-                endTime = startTime.plusHours(1); // <-- požadované chování
-            }
-        }
-
-        // Defaulty pro notifikace
-        if (notify == null) notify = false;
-        if (Boolean.TRUE.equals(notify) && notifyBefore == null) {
-            notifyBefore = 60;
+    // Automatika konce: primárně podle duration, jinak +1 hodina
+    if (startTime != null) {
+        if (duration != null && duration > 0) {
+            endTime = startTime.plusMinutes(duration.longValue());
+        } else if (endTime == null || endTime.isBefore(startTime)) {
+            endTime = startTime.plusHours(1); // <-- požadované chování
         }
     }
+
+    // Defaulty pro notifikace
+    if (notify == null) notify = false;
+    if (Boolean.TRUE.equals(notify) && notifyBefore == null) {
+        notifyBefore = 60;
+    }
+}
 
 
     // Volitelné helpery – IDE pak obvykle přestane hlásit „unused“

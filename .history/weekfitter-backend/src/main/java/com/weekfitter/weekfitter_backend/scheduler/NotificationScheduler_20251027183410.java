@@ -11,8 +11,8 @@ public class NotificationScheduler {
 
     private final NotificationService notificationService;
 
-    // Kontrola každých 30 sekund
-    @Scheduled(fixedRate = 30000)
+    // Kontrola 
+    @Scheduled(fixedRate = 60000)
     public void checkNotifications() {
         notificationService.sendPendingNotifications();
     }

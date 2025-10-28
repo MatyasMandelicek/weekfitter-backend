@@ -40,6 +40,8 @@ public class CalendarEventService {
         if (event.getTitle() == null || event.getTitle().isBlank())
             throw new RuntimeException("Title is required");
 
+        // Nepočítej tady nic složitě – nech to na @PrePersist/@PreUpdate
+        // Jen doplň, když uživateli chybí endTime i duration:
         if (event.getStartTime() != null) {
             if ((event.getDuration() == null || event.getDuration() <= 0)
                     && (event.getEndTime() == null || event.getEndTime().isBefore(event.getStartTime()))) {
@@ -52,41 +54,54 @@ public class CalendarEventService {
         return calendarEventRepository.save(event);
     }
 
+
+    /**
+     * Bezpečná aktualizace – zachovává všechny důležité atributy
+     * (včetně notify a notifyBefore)
+     */
     @Transactional
     public CalendarEvent updateEvent(UUID id, CalendarEvent updatedEvent) {
         return calendarEventRepository.findById(id)
                 .map(existing -> {
+                    // Zachovat uživatele, pokud nepřišel
                     if (updatedEvent.getUser() == null)
                         updatedEvent.setUser(existing.getUser());
+
+                    // Nastavit výchozí kategorii, pokud chybí
                     if (updatedEvent.getCategory() == null)
                         updatedEvent.setCategory(existing.getCategory() != null ? existing.getCategory() : ActivityType.OTHER);
 
-                    if (updatedEvent.getTitle() != null) existing.setTitle(updatedEvent.getTitle());
-                    if (updatedEvent.getDescription() != null) existing.setDescription(updatedEvent.getDescription());
-                    if (updatedEvent.getStartTime() != null) existing.setStartTime(updatedEvent.getStartTime());
-                    if (updatedEvent.getDuration() != null) existing.setDuration(updatedEvent.getDuration());
-                    if (updatedEvent.getDistance() != null) existing.setDistance(updatedEvent.getDistance());
-                    if (updatedEvent.getSportDescription() != null) existing.setSportDescription(updatedEvent.getSportDescription());
-                    if (updatedEvent.getSportType() != null) existing.setSportType(updatedEvent.getSportType());
-                    if (updatedEvent.getFilePath() != null) existing.setFilePath(updatedEvent.getFilePath());
-                    if (updatedEvent.getCategory() != null) existing.setCategory(updatedEvent.getCategory());
-                    existing.setAllDay(updatedEvent.isAllDay());
-                    if (updatedEvent.getNotify() != null) existing.setNotify(updatedEvent.getNotify());
-                    if (updatedEvent.getNotifyBefore() != null) existing.setNotifyBefore(updatedEvent.getNotifyBefore());
-                    existing.setUser(updatedEvent.getUser());
-
-                    if (existing.getStartTime() != null) {
-                        boolean clientSentEndTime = updatedEvent.getEndTime() != null;
-                        if (existing.getDuration() != null && existing.getDuration() > 0) {
-                            existing.setEndTime(existing.getStartTime().plusMinutes(existing.getDuration().longValue()));
-                        } else if (!clientSentEndTime || updatedEvent.getEndTime().isBefore(existing.getStartTime())) {
-                            existing.setEndTime(existing.getStartTime().plusHours(1));
-                        } else {
-                            existing.setEndTime(updatedEvent.getEndTime());
-                        }
-                    } else if (updatedEvent.getEndTime() != null) {
+                    // --- Aktualizace polí ---
+                    if (updatedEvent.getTitle() != null)
+                        existing.setTitle(updatedEvent.getTitle());
+                    if (updatedEvent.getDescription() != null)
+                        existing.setDescription(updatedEvent.getDescription());
+                    if (updatedEvent.getStartTime() != null)
+                        existing.setStartTime(updatedEvent.getStartTime());
+                    if (updatedEvent.getEndTime() != null)
                         existing.setEndTime(updatedEvent.getEndTime());
-                    }
+                    if (updatedEvent.getDuration() != null)
+                        existing.setDuration(updatedEvent.getDuration());
+                    if (updatedEvent.getDistance() != null)
+                        existing.setDistance(updatedEvent.getDistance());
+                    if (updatedEvent.getSportDescription() != null)
+                        existing.setSportDescription(updatedEvent.getSportDescription());
+                    if (updatedEvent.getSportType() != null)
+                        existing.setSportType(updatedEvent.getSportType());
+                    if (updatedEvent.getFilePath() != null)
+                        existing.setFilePath(updatedEvent.getFilePath());
+                    if (updatedEvent.getCategory() != null)
+                        existing.setCategory(updatedEvent.getCategory());
+                    existing.setAllDay(updatedEvent.isAllDay());
+
+                    // --- Zachovat notify a notifyBefore ---
+                    if (updatedEvent.getNotify() != null)
+                        existing.setNotify(updatedEvent.getNotify());
+                    if (updatedEvent.getNotifyBefore() != null)
+                        existing.setNotifyBefore(updatedEvent.getNotifyBefore());
+
+                    // --- Uživatel ---
+                    existing.setUser(updatedEvent.getUser());
 
                     return calendarEventRepository.save(existing);
                 })
