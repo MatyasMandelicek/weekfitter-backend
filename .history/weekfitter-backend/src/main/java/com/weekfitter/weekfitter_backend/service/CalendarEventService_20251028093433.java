@@ -20,6 +20,7 @@ public class CalendarEventService {
 
     private final NotificationRepository notificationRepository;
     private final CalendarEventRepository calendarEventRepository;
+    private final NotificationService notificationService; // <-- přidáno
 
     public List<CalendarEvent> getAllEvents() {
         return calendarEventRepository.findAll();
@@ -33,12 +34,18 @@ public class CalendarEventService {
         return calendarEventRepository.findByUser(user);
     }
 
+    /**
+     * Vytvoří novou událost a nastaví výchozí konec,
+     * pokud není zadán nebo je kratší než začátek.
+     * Zároveň umožňuje zpracování notifikací (přes controller).
+     */
     @Transactional
     public CalendarEvent createEvent(CalendarEvent event) {
         if (event.getCategory() == null) event.setCategory(ActivityType.OTHER);
         if (event.getTitle() == null || event.getTitle().isBlank())
             throw new RuntimeException("Title is required");
 
+        // Výpočet endTime
         if (event.getStartTime() != null) {
             if ((event.getDuration() == null || event.getDuration() <= 0)
                     && (event.getEndTime() == null || event.getEndTime().isBefore(event.getStartTime()))) {
@@ -48,9 +55,14 @@ public class CalendarEventService {
             }
         }
 
-        return calendarEventRepository.save(event);
+        CalendarEvent saved = calendarEventRepository.save(event);
+        return saved;
     }
 
+    /**
+     * Aktualizace existující události.
+     * Zachovává původního uživatele a přepočítává čas konce.
+     */
     @Transactional
     public CalendarEvent updateEvent(UUID id, CalendarEvent updatedEvent) {
         return calendarEventRepository.findById(id)
@@ -60,6 +72,7 @@ public class CalendarEventService {
                     if (updatedEvent.getCategory() == null)
                         updatedEvent.setCategory(existing.getCategory() != null ? existing.getCategory() : ActivityType.OTHER);
 
+                    // === Přepis jednotlivých polí ===
                     if (updatedEvent.getTitle() != null) existing.setTitle(updatedEvent.getTitle());
                     if (updatedEvent.getDescription() != null) existing.setDescription(updatedEvent.getDescription());
                     if (updatedEvent.getStartTime() != null) existing.setStartTime(updatedEvent.getStartTime());
@@ -70,8 +83,11 @@ public class CalendarEventService {
                     if (updatedEvent.getFilePath() != null) existing.setFilePath(updatedEvent.getFilePath());
                     if (updatedEvent.getCategory() != null) existing.setCategory(updatedEvent.getCategory());
                     existing.setAllDay(updatedEvent.isAllDay());
+                    if (updatedEvent.getNotify() != null) existing.setNotify(updatedEvent.getNotify());
+                    if (updatedEvent.getNotifyBefore() != null) existing.setNotifyBefore(updatedEvent.getNotifyBefore());
                     existing.setUser(updatedEvent.getUser());
 
+                    // === Přepočet konce ===
                     if (existing.getStartTime() != null) {
                         boolean clientSentEndTime = updatedEvent.getEndTime() != null;
                         if (existing.getDuration() != null && existing.getDuration() > 0) {
@@ -90,9 +106,38 @@ public class CalendarEventService {
                 .orElseThrow(() -> new RuntimeException("Event not found"));
     }
 
+    /**
+     * Smazání události i s navázanými notifikacemi
+     */
     @Transactional
     public void deleteEvent(UUID id) {
         notificationRepository.deleteAllByEventId(id);
         calendarEventRepository.deleteById(id);
+    }
+
+    // ==============================================================
+    // Doplňkové metody pro vytváření více notifikací z controlleru
+    // ==============================================================
+
+    /**
+     * Po uložení události vytvoří notifikace pro dané minuty předem.
+     * @param event uložená událost
+     * @param notificationMinutes seznam minut (např. [15, 60, 1440])
+     */
+    @Transactional
+    public void createNotificationsForEvent(CalendarEvent event, List<Integer> notificationMinutes) {
+        if (event == null || event.getStartTime() == null) return;
+
+        // Smaž staré notifikace
+        notificationRepository.deleteAllByEventId(event.getId());
+
+        if (notificationMinutes == null || notificationMinutes.isEmpty()) return;
+
+        for (Integer minutes : notificationMinutes) {
+            if (minutes != null && minutes > 0) {
+                LocalDateTime notifyAt = event.getStartTime().minusMinutes(minutes.longValue());
+                notificationService.createNotification(event, notifyAt);
+            }
+        }
     }
 }

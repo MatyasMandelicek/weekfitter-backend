@@ -20,6 +20,7 @@ public class CalendarEventService {
 
     private final NotificationRepository notificationRepository;
     private final CalendarEventRepository calendarEventRepository;
+    private final NotificationService notificationService;
 
     public List<CalendarEvent> getAllEvents() {
         return calendarEventRepository.findAll();

@@ -776,7 +776,6 @@ const CalendarPage = () => {
                           className="btn-delete"
                           onClick={() => setNotifications(notifications.filter((_, idx) => idx !== i))}
                         >
-                          ❌
                         </button>
                       </div>
                     ))}

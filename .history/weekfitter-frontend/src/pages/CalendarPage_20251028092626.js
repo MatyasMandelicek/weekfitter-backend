@@ -242,34 +242,34 @@ const CalendarPage = () => {
   };
 
   // === Změna začátku → přepočítá konec podle duration nebo +1h ===
-  const handleStartChange = (e) => {
-    const newStart = new Date(e.target.value);
+const handleStartChange = (e) => {
+  const newStart = new Date(e.target.value);
 
-    if (formData.duration && !isNaN(parseInt(formData.duration, 10))) {
-      const minutes = parseInt(formData.duration, 10);
-      const newEnd = addMinutes(newStart, minutes);
-      setFormData((prev) => ({
-        ...prev,
-        start: format(newStart, "yyyy-MM-dd'T'HH:mm"),
-        end: format(newEnd, "yyyy-MM-dd'T'HH:mm"),
-      }));
-    } else {
-      const prevEnd = new Date(formData.end);
-      const prevStart = new Date(formData.start);
-      const userManuallyChangedEnd =
-        Math.abs((prevEnd - prevStart) - 30 * 60 * 1000) > 60 * 1000;
+  if (formData.duration && !isNaN(parseInt(formData.duration, 10))) {
+    const minutes = parseInt(formData.duration, 10);
+    const newEnd = addMinutes(newStart, minutes);
+    setFormData((prev) => ({
+      ...prev,
+      start: format(newStart, "yyyy-MM-dd'T'HH:mm"),
+      end: format(newEnd, "yyyy-MM-dd'T'HH:mm"),
+    }));
+  } else {
+    const prevEnd = new Date(formData.end);
+    const prevStart = new Date(formData.start);
+    const userManuallyChangedEnd =
+      Math.abs((prevEnd - prevStart) - 30 * 60 * 1000) > 60 * 1000;
 
-      const newEnd = userManuallyChangedEnd
-        ? prevEnd
-        : new Date(newStart.getTime() + 60 * 60 * 1000);
+    const newEnd = userManuallyChangedEnd
+      ? prevEnd
+      : new Date(newStart.getTime() + 60 * 60 * 1000);
 
-      setFormData((prev) => ({
-        ...prev,
-        start: format(newStart, "yyyy-MM-dd'T'HH:mm"),
-        end: format(newEnd, "yyyy-MM-dd'T'HH:mm"),
-      }));
-    }
-  };
+    setFormData((prev) => ({
+      ...prev,
+      start: format(newStart, "yyyy-MM-dd'T'HH:mm"),
+      end: format(newEnd, "yyyy-MM-dd'T'HH:mm"),
+    }));
+  }
+};
 
 
 
@@ -776,7 +776,6 @@ const CalendarPage = () => {
                           className="btn-delete"
                           onClick={() => setNotifications(notifications.filter((_, idx) => idx !== i))}
                         >
-                          ❌
                         </button>
                       </div>
                     ))}

@@ -44,6 +44,14 @@ public class CalendarEvent {
 
     private String sportDescription;
 
+    // ——— Notifikace k události ———
+    // Držme se Boolean, ale zajistíme defaulty v @PrePersist/@PreUpdate
+    @Column(nullable = false)
+    private Boolean notify;
+
+    @Column(name = "notify_before")
+    private Integer notifyBefore;
+
     @Column(name = "file_path")
     private String filePath;
 
@@ -51,37 +59,41 @@ public class CalendarEvent {
     @JoinColumn(name = "user_id")
     private User user;
 
-    // ====== VÍCE NOTIFIKACÍ (nahrazuje původní notify/notifyBefore) ======
+    // Zabraň cyklické serializaci a nastav výchozí prázdný seznam i při použití Lombok builderu
     @JsonIgnore
     @OneToMany(mappedBy = "event", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @Builder.Default
     private List<Notification> notifications = new ArrayList<>();
 
-    // ====== Automatické výchozí hodnoty ======
     @PrePersist
     @PreUpdate
     private void applyDefaults() {
         if (category == null) category = ActivityType.OTHER;
 
-        // Automatické dopočítání konce podle délky nebo výchozí +1h
+        // Automatika konce: primárně podle duration, jinak +1 hodina
         if (startTime != null) {
             if (duration != null && duration > 0) {
                 endTime = startTime.plusMinutes(duration.longValue());
             } else if (endTime == null || endTime.isBefore(startTime)) {
-                endTime = startTime.plusHours(1);
+                endTime = startTime.plusHours(1); // <-- požadované chování
             }
+        }
+
+        // Defaulty pro notifikace
+        if (notify == null) notify = false;
+        if (Boolean.TRUE.equals(notify) && notifyBefore == null) {
+            notifyBefore = 60;
         }
     }
 
-    // ====== Pomocné metody pro práci s notifikacemi ======
+
+    // Volitelné helpery – IDE pak obvykle přestane hlásit „unused“
     public void addNotification(Notification n) {
-        if (n == null) return;
         notifications.add(n);
         n.setEvent(this);
     }
 
     public void removeNotification(Notification n) {
-        if (n == null) return;
         notifications.remove(n);
         n.setEvent(null);
     }

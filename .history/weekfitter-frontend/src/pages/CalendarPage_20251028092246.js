@@ -61,7 +61,7 @@ const CalendarPage = () => {
     filePath: null,
   });
 
-  const [notifications, setNotifications] = useState([60]);
+  const [notifications, setNotifications] = useState();
   const [view, setView] = useState(Views.MONTH);
   const [date, setDate] = useState(new Date());
 
@@ -245,6 +245,7 @@ const CalendarPage = () => {
   const handleStartChange = (e) => {
     const newStart = new Date(e.target.value);
 
+    // Pokud je zadáno trvání, konec = start + duration
     if (formData.duration && !isNaN(parseInt(formData.duration, 10))) {
       const minutes = parseInt(formData.duration, 10);
       const newEnd = addMinutes(newStart, minutes);
@@ -254,11 +255,14 @@ const CalendarPage = () => {
         end: format(newEnd, "yyyy-MM-dd'T'HH:mm"),
       }));
     } else {
+      // Pokud není trvání a konec není ručně měněn → posuň konec o hodinu
       const prevEnd = new Date(formData.end);
       const prevStart = new Date(formData.start);
-      const userManuallyChangedEnd =
-        Math.abs((prevEnd - prevStart) - 30 * 60 * 1000) > 60 * 1000;
 
+      const userManuallyChangedEnd =
+        Math.abs(prevEnd - prevStart - 30 * 60 * 1000) > 60 * 1000; // odchylka od původního 30 min defaultu
+
+      // nastav konec +1h pouze, pokud ho uživatel dosud neměnil ručně
       const newEnd = userManuallyChangedEnd
         ? prevEnd
         : new Date(newStart.getTime() + 60 * 60 * 1000);
@@ -270,7 +274,6 @@ const CalendarPage = () => {
       }));
     }
   };
-
 
 
   // Pomocná funkce: sjednocené payloady pro backend (posíláme i activityType)
@@ -353,7 +356,8 @@ const CalendarPage = () => {
       sportDescription: formData.category === "SPORT" ? formData.sportDescription : null,
       sportType: formData.category === "SPORT" ? formData.sportType : null,
       filePath: uploadedFilePath || null,
-      notifications,
+      notify,
+      notifyBefore,
     };
 
     const method = selectedEvent ? "PUT" : "POST";
@@ -737,29 +741,23 @@ const CalendarPage = () => {
 
                   <div className="notification-section">
                     <h4>Upozornění</h4>
+                    <div className="notify-row">
+                      <input
+                        type="checkbox"
+                        id="notify"
+                        checked={notify}
+                        onChange={() => setNotify(!notify)}
+                      />
+                      <label htmlFor="notify">Zaslat e-mailové upozornění</label>
+                    </div>
 
-                    {notifications.length === 0 && (
-                      <button
-                        type="button"
-                        onClick={() => setNotifications([60])}
-                        className="btn-add"
-                      >
-                        Přidat upozornění
-                      </button>
-                    )}
-
-                    {notifications.map((min, i) => (
-                      <div key={i} className="notify-row">
-                        <label>Upozornit před začátkem:</label>
+                    {notify && (
+                      <>
+                        <label>Čas upozornění před začátkem:</label>
                         <select
                           className="notify-select"
-                          value={min}
-                          onChange={(e) => {
-                            const v = Number(e.target.value);
-                            const copy = [...notifications];
-                            copy[i] = v;
-                            setNotifications(copy);
-                          }}
+                          value={notifyBefore}
+                          onChange={(e) => setNotifyBefore(Number(e.target.value))}
                         >
                           <option value={5}>5 minut</option>
                           <option value={15}>15 minut</option>
@@ -770,28 +768,9 @@ const CalendarPage = () => {
                           <option value={2880}>2 dny</option>
                           <option value={10080}>1 týden</option>
                         </select>
-
-                        <button
-                          type="button"
-                          className="btn-delete"
-                          onClick={() => setNotifications(notifications.filter((_, idx) => idx !== i))}
-                        >
-                          ❌
-                        </button>
-                      </div>
-                    ))}
-
-                    {notifications.length > 0 && (
-                      <button
-                        type="button"
-                        onClick={() => setNotifications([...notifications, 60])}
-                        className="btn-add"
-                      >
-                        Další upozornění
-                      </button>
+                      </>
                     )}
                   </div>
-
 
                   <div className="modal-buttons">
                     <button type="submit">{selectedEvent ? "Uložit" : "Přidat"}</button>

@@ -37,6 +37,9 @@ public class CalendarEventController {
         this.notificationService = notificationService;
     }
 
+    /**
+     * Vrátí události pouze přihlášeného uživatele podle e-mailu
+     */
     @GetMapping
     public ResponseEntity<?> getEventsByUser(@RequestParam String email) {
         Optional<User> userOpt = userRepository.findByEmail(email);
@@ -48,6 +51,11 @@ public class CalendarEventController {
         return ResponseEntity.ok(events);
     }
 
+    /**
+     * Vytvoří novou událost a automaticky ji přiřadí k uživateli.
+     * Podporuje více notifikací (pole minut). Pokud nejsou poslány,
+     * funguje zpětně kompatibilně přes notify/notifyBefore.
+     */
     @PostMapping
     public ResponseEntity<?> createEvent(@RequestParam String email, @RequestBody EventRequest request) {
         Optional<User> userOpt = userRepository.findByEmail(email);
@@ -63,9 +71,10 @@ public class CalendarEventController {
 
             CalendarEvent saved = calendarEventService.createEvent(toSave);
 
-            // === Notifikace ===
+            // ---- Notifikace: nejdřív zrušit stávající (pro jistotu) ----
             notificationService.deleteByEvent(saved.getId());
 
+            // Preferuj pole notifications (více notifikací)
             if (request.getNotifications() != null && !request.getNotifications().isEmpty()) {
                 if (saved.getStartTime() != null) {
                     for (Integer minutes : request.getNotifications()) {
@@ -74,6 +83,13 @@ public class CalendarEventController {
                             notificationService.createNotification(saved, notifyAt);
                         }
                     }
+                }
+            } else {
+                // Zpětná kompatibilita: single notify + notifyBefore
+                if (Boolean.TRUE.equals(saved.getNotify()) && saved.getStartTime() != null) {
+                    int notifyBefore = (saved.getNotifyBefore() != null) ? saved.getNotifyBefore() : 60;
+                    LocalDateTime notifyAt = saved.getStartTime().minusMinutes(notifyBefore);
+                    notificationService.createNotification(saved, notifyAt);
                 }
             }
 
@@ -84,6 +100,9 @@ public class CalendarEventController {
         }
     }
 
+    /**
+     * Vrátí detail události podle ID
+     */
     @GetMapping("/{id}")
     public ResponseEntity<CalendarEvent> getEventById(@PathVariable UUID id) {
         return calendarEventService.getEventById(id)
@@ -91,6 +110,11 @@ public class CalendarEventController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    /**
+     * Aktualizace existující události.
+     * Podporuje více notifikací (pole minut). Pokud nejsou poslány,
+     * funguje zpětně kompatibilně přes notify/notifyBefore.
+     */
     @PutMapping("/{id}")
     public ResponseEntity<?> updateEvent(
             @PathVariable UUID id,
@@ -114,7 +138,7 @@ public class CalendarEventController {
 
             CalendarEvent updated = calendarEventService.updateEvent(id, toUpdate);
 
-            // === Notifikace ===
+            // ---- Notifikace: smazat staré, vytvořit nové ----
             notificationService.deleteByEvent(updated.getId());
 
             if (request.getNotifications() != null && !request.getNotifications().isEmpty()) {
@@ -126,6 +150,13 @@ public class CalendarEventController {
                         }
                     }
                 }
+            } else {
+                // Zpětná kompatibilita: single notify + notifyBefore
+                if (Boolean.TRUE.equals(updated.getNotify()) && updated.getStartTime() != null) {
+                    int notifyBefore = (updated.getNotifyBefore() != null) ? updated.getNotifyBefore() : 60;
+                    LocalDateTime newNotifyAt = updated.getStartTime().minusMinutes(notifyBefore);
+                    notificationService.createNotification(updated, newNotifyAt);
+                }
             }
 
             return ResponseEntity.ok(updated);
@@ -136,29 +167,52 @@ public class CalendarEventController {
         }
     }
 
+    /**
+     * Smazání události
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEvent(@PathVariable UUID id) {
         calendarEventService.deleteEvent(id);
         return ResponseEntity.noContent().build();
     }
 
-    // ==================== DTO ====================
+    // ==================== Pomocné DTO a mapper ====================
 
+    /**
+     * Interní request DTO – rozšiřuje CalendarEvent o pole "notifications" (minuty před začátkem).
+     * Necháváme ho v tomto souboru kvůli jednoduché integraci.
+     */
     @Data
     static class EventRequest {
         private UUID id;
+
         private String title;
         private String description;
+
         private LocalDateTime startTime;
         private LocalDateTime endTime;
-        private ActivityType category;
+
+        private ActivityType category; // SPORT, WORK, SCHOOL, REST, OTHER
         private SportType sportType;
+
         private Boolean allDay;
+
         private Double duration;
         private Double distance;
+
         private String sportDescription;
+
         private String filePath;
-        private List<Integer> notifications; // minuty před začátkem
+
+        /**
+         * Nové pole: více notifikací v minutách před začátkem.
+         * Např. [5, 60, 1440] = 5 min, 1 hod, 1 den.
+         */
+        private List<Integer> notifications;
+
+        // Zpětná kompatibilita – stále přijímáme, ale preferujeme "notifications"
+        private Boolean notify;
+        private Integer notifyBefore;
     }
 
     private static CalendarEvent mapRequestToEntity(EventRequest r) {
@@ -175,6 +229,13 @@ public class CalendarEventController {
         e.setDistance(r.getDistance());
         e.setSportDescription(r.getSportDescription());
         e.setFilePath(r.getFilePath());
+
+        // Zpětná kompatibilita – tyto dvě pole mohou zůstat v entitě,
+        // ale do budoucna je můžeš odstranit. Pokud posíláš notifications[],
+        // controller je stejně ignoruje.
+        e.setNotify(r.getNotify());
+        e.setNotifyBefore(r.getNotifyBefore());
+
         return e;
     }
 }

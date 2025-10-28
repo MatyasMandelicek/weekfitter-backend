@@ -1,14 +1,11 @@
 package com.weekfitter.weekfitter_backend.controller;
 
-import com.weekfitter.weekfitter_backend.model.ActivityType;
 import com.weekfitter.weekfitter_backend.model.CalendarEvent;
-import com.weekfitter.weekfitter_backend.model.SportType;
 import com.weekfitter.weekfitter_backend.model.User;
 import com.weekfitter.weekfitter_backend.respository.CalendarEventRepository;
 import com.weekfitter.weekfitter_backend.respository.UserRepository;
 import com.weekfitter.weekfitter_backend.service.CalendarEventService;
 import com.weekfitter.weekfitter_backend.service.NotificationService;
-import lombok.Data;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +22,7 @@ public class CalendarEventController {
     private final NotificationService notificationService;
     private final CalendarEventService calendarEventService;
     private final UserRepository userRepository;
+    private List<Integer> 
 
     public CalendarEventController(
             CalendarEventService calendarEventService,
@@ -37,6 +35,9 @@ public class CalendarEventController {
         this.notificationService = notificationService;
     }
 
+    /**
+     * Vrátí události pouze přihlášeného uživatele podle e-mailu
+     */
     @GetMapping
     public ResponseEntity<?> getEventsByUser(@RequestParam String email) {
         Optional<User> userOpt = userRepository.findByEmail(email);
@@ -48,33 +49,34 @@ public class CalendarEventController {
         return ResponseEntity.ok(events);
     }
 
+    /**
+     * Vytvoří novou událost a automaticky ji přiřadí k uživateli.
+     * Pokud je zvoleno upozornění, vytvoří i záznam v tabulce notifications.
+     */
     @PostMapping
-    public ResponseEntity<?> createEvent(@RequestParam String email, @RequestBody EventRequest request) {
+    public ResponseEntity<?> createEvent(@RequestParam String email, @RequestBody CalendarEvent event) {
         Optional<User> userOpt = userRepository.findByEmail(email);
         if (userOpt.isEmpty()) {
             return ResponseEntity.badRequest().body("Uživatel s e-mailem " + email + " nenalezen.");
         }
 
         User user = userOpt.get();
+        event.setUser(user);
 
         try {
-            CalendarEvent toSave = mapRequestToEntity(request);
-            toSave.setUser(user);
+            CalendarEvent saved = calendarEventService.createEvent(event);
 
-            CalendarEvent saved = calendarEventService.createEvent(toSave);
+            // === Vytvoření notifikace, pokud uživatel zvolil upozornění ===
+            if (event.getStartTime() != null && Boolean.TRUE.equals(event.getNotify())) {
+                int notifyBefore = (event.getNotifyBefore() != null) ? event.getNotifyBefore() : 60;
+                LocalDateTime notifyAt = event.getStartTime().minusMinutes(notifyBefore);
 
-            // === Notifikace ===
-            notificationService.deleteByEvent(saved.getId());
 
-            if (request.getNotifications() != null && !request.getNotifications().isEmpty()) {
-                if (saved.getStartTime() != null) {
-                    for (Integer minutes : request.getNotifications()) {
-                        if (minutes != null && minutes > 0) {
-                            LocalDateTime notifyAt = saved.getStartTime().minusMinutes(minutes.longValue());
-                            notificationService.createNotification(saved, notifyAt);
-                        }
-                    }
-                }
+                notificationService.createNotification(saved, notifyAt);
+
+                System.out.println("[INFO] Notifikace naplánována na " + notifyAt +
+                        " (začátek: " + event.getStartTime() + ", " +
+                        "uživatel: " + user.getEmail() + ")");
             }
 
             return ResponseEntity.ok(saved);
@@ -84,6 +86,9 @@ public class CalendarEventController {
         }
     }
 
+    /**
+     * Vrátí detail události podle ID
+     */
     @GetMapping("/{id}")
     public ResponseEntity<CalendarEvent> getEventById(@PathVariable UUID id) {
         return calendarEventService.getEventById(id)
@@ -91,41 +96,34 @@ public class CalendarEventController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    /**
+     * Aktualizace existující události
+     */
     @PutMapping("/{id}")
     public ResponseEntity<?> updateEvent(
             @PathVariable UUID id,
             @RequestParam(required = false) String email,
-            @RequestBody EventRequest request
+            @RequestBody CalendarEvent event
     ) {
         try {
-            User resolvedUser = null;
             if (email != null && !email.isBlank()) {
                 Optional<User> userOpt = userRepository.findByEmail(email);
                 if (userOpt.isEmpty()) {
                     return ResponseEntity.badRequest().body("Uživatel s e-mailem " + email + " nenalezen.");
                 }
-                resolvedUser = userOpt.get();
+                event.setUser(userOpt.get());
             }
 
-            CalendarEvent toUpdate = mapRequestToEntity(request);
-            if (resolvedUser != null) {
-                toUpdate.setUser(resolvedUser);
-            }
+            CalendarEvent updated = calendarEventService.updateEvent(id, event);
 
-            CalendarEvent updated = calendarEventService.updateEvent(id, toUpdate);
-
-            // === Notifikace ===
+            // Aktualizace nebo vytvoření notifikace
             notificationService.deleteByEvent(updated.getId());
 
-            if (request.getNotifications() != null && !request.getNotifications().isEmpty()) {
-                if (updated.getStartTime() != null) {
-                    for (Integer minutes : request.getNotifications()) {
-                        if (minutes != null && minutes > 0) {
-                            LocalDateTime notifyAt = updated.getStartTime().minusMinutes(minutes.longValue());
-                            notificationService.createNotification(updated, notifyAt);
-                        }
-                    }
-                }
+            if (Boolean.TRUE.equals(updated.getNotify()) && updated.getStartTime() != null) {
+                int notifyBefore = (updated.getNotifyBefore() != null) ? updated.getNotifyBefore() : 60;
+                LocalDateTime newNotifyAt = updated.getStartTime().minusMinutes(notifyBefore);
+                notificationService.createNotification(updated, newNotifyAt);
+                System.out.println("[INFO] Notifikace aktualizována na nový čas: " + newNotifyAt);
             }
 
             return ResponseEntity.ok(updated);
@@ -136,45 +134,13 @@ public class CalendarEventController {
         }
     }
 
+
+    /**
+     * Smazání události
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEvent(@PathVariable UUID id) {
         calendarEventService.deleteEvent(id);
         return ResponseEntity.noContent().build();
-    }
-
-    // ==================== DTO ====================
-
-    @Data
-    static class EventRequest {
-        private UUID id;
-        private String title;
-        private String description;
-        private LocalDateTime startTime;
-        private LocalDateTime endTime;
-        private ActivityType category;
-        private SportType sportType;
-        private Boolean allDay;
-        private Double duration;
-        private Double distance;
-        private String sportDescription;
-        private String filePath;
-        private List<Integer> notifications; // minuty před začátkem
-    }
-
-    private static CalendarEvent mapRequestToEntity(EventRequest r) {
-        CalendarEvent e = new CalendarEvent();
-        e.setId(r.getId());
-        e.setTitle(r.getTitle());
-        e.setDescription(r.getDescription());
-        e.setStartTime(r.getStartTime());
-        e.setEndTime(r.getEndTime());
-        e.setCategory(r.getCategory());
-        e.setSportType(r.getSportType());
-        e.setAllDay(Boolean.TRUE.equals(r.getAllDay()));
-        e.setDuration(r.getDuration());
-        e.setDistance(r.getDistance());
-        e.setSportDescription(r.getSportDescription());
-        e.setFilePath(r.getFilePath());
-        return e;
     }
 }
