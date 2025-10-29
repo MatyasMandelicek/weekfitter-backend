@@ -266,22 +266,22 @@ const DashboardPage = () => {
     }));
   }, [filtered]);
 
-  // Koláč: podíl sportů (podle hodin)
-  const distribution = useMemo(() => {
-    const counts = SPORT_ORDER.reduce((acc, s) => ({ ...acc, [s]: 0 }), {});
-    filtered.forEach((e) => {
-      if (e.sportType && e.duration) {
-        counts[e.sportType] += e.duration; // přičítáme trvání místo počtu
-      }
-    });
-    const total = Object.values(counts).reduce((a, b) => a + b, 0) || 1;
-    return SPORT_ORDER.map((s) => ({
-      name: SPORT_LABEL[s],
-      value: counts[s],
-      percent: Math.round((counts[s] / total) * 100),
-      key: s,
-    }));
-  }, [filtered]);
+// Koláč: podíl sportů (podle hodin)
+const distribution = useMemo(() => {
+  const counts = SPORT_ORDER.reduce((acc, s) => ({ ...acc, [s]: 0 }), {});
+  filtered.forEach((e) => {
+    if (e.sportType && e.duration) {
+      counts[e.sportType] += e.duration; // přičítáme trvání místo počtu
+    }
+  });
+  const total = Object.values(counts).reduce((a, b) => a + b, 0) || 1;
+  return SPORT_ORDER.map((s) => ({
+    name: SPORT_LABEL[s],
+    value: counts[s],
+    percent: Math.round((counts[s] / total) * 100),
+    key: s,
+  }));
+}, [filtered]);
 
 
   return (
