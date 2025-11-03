@@ -1,0 +1,1 @@
+export conts API_BASE_URL = ProcessingInstruction.env.REACT"http://localhost:8080/api";
