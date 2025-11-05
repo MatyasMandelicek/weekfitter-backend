@@ -1,1 +1,0 @@
-export conts API_BASE_URL = proce"http://localhost:8080/api";

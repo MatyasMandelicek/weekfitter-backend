@@ -1,1 +1,0 @@
-export conts API_BASE_URL = ProcessingInstruction.env.RE"http://localhost:8080/api";
