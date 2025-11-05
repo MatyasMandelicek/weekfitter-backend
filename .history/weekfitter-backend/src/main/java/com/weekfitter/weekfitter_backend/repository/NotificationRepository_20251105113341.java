@@ -20,7 +20,7 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
      * Vrací seznam všech neodeslaných notifikací, jejichž čas již nastal
      * a jejichž událost je stále v budoucnosti.
      */
-    @Query("SELECT n FROM Notification n WHERE n.sent = false AND n.notifyAt <= :now AND (n.event.startTime IS NULL OR n.event.startTime > :now)")
+    @Query("SELECT n FROM Notification n WHERE n.sent = false AND n.notifyAt <= :now AND (n.event.startTime IS NUllL OR n.event.startTime > :now")
     List<Notification> findPendingNotifications(LocalDateTime now);
 
     /** Vrací všechny notifikace podle ID události. */

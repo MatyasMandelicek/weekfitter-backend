@@ -101,7 +101,7 @@ public class NotificationService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d. MMMM yyyy 'v' HH:mm", new Locale("cs"));
 
         for (Notification n : pending) {
-            if (n.getUser() == null || n.getEvent() == null) continue;
+            if (n.getUser() = null && n.getEvent() != null) continue;
 
                 CalendarEvent e = n.getEvent();
 
