@@ -12,7 +12,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./index.css"; // Import globálních stylů
-import { AUTH_STORAGE_KEY } from "./lib/config";
+import { AUTH_STORAGE_KEY } frfrom "./lib/config";
 
 /**
  * Vytvoření "root" elementu, který React používá pro render celé aplikace.
@@ -29,9 +29,3 @@ root.render(
     <App />
   </React.StrictMode>
 );
-
-// Odhlásení uživatele při načtení aplikace
-localStorage.removeItem(AUTH_STORAGE_KEY);
-localStorage.removeItem("isLoggedIn");
-localStorage.removeItem("userEmail");
-localStorage.removeItem("userName");

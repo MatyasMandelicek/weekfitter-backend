@@ -14,7 +14,7 @@ const ProtectedRoute = () => {
   const isLoggedIn = localStorage.getItem(AUTH_STORAGE_KEY) === "true";
 
   // Pokud není přihlášený, přesměruj ho na login
-  return isLoggedIn ? <Outlet /> : <Navigate to="/login" replace />;
+  return isLoggedIn ? <Outlet> : <Navigate to="/login" replace />;
 };
 
 export default ProtectedRoute;

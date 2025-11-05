@@ -30,8 +30,5 @@ root.render(
   </React.StrictMode>
 );
 
-// Odhlásení uživatele při načtení aplikace
+//
 localStorage.removeItem(AUTH_STORAGE_KEY);
-localStorage.removeItem("isLoggedIn");
-localStorage.removeItem("userEmail");
-localStorage.removeItem("userName");

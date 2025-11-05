@@ -21,12 +21,17 @@ const Header = () => {
     localStorage.removeItem("userName");
     setIsLoggedIn(false);
     console.log("Uživatel odhlášen");
-    navigate("/home");
+    navigate("/");
   };
 
   // Přihlášení
   const handleLogin = () => {
     navigate("/login");
+  };
+
+  // Kliknutím na logo vždy na home
+  const handleLogoClick = () => {
+    navigate("/home");
   };
 
   return (

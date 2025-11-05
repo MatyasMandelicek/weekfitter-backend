@@ -43,7 +43,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/calendar" element={<CalendarPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/profile" element={<ProtectedRoute element={<ProfilePage />} />
         </Route>
 
         {/* Fallback - když uživatel zadá neexistující cestu */}

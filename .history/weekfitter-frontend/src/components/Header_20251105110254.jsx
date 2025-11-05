@@ -21,7 +21,7 @@ const Header = () => {
     localStorage.removeItem("userName");
     setIsLoggedIn(false);
     console.log("Uživatel odhlášen");
-    navigate("/home");
+    navigate("/");
   };
 
   // Přihlášení

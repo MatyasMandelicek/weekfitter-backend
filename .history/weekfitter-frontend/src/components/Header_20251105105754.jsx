@@ -6,11 +6,14 @@ import { AUTH_STORAGE_KEY } from "../lib/config";
 
 const Header = () => {
   const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const isLoggedIn = useMemo(
+    () => localStorage.getItem(AUTH_STORAGE_KEY) === "true",
+    []
+  );
 
   // Zkontroluje, jestli je uživatel přihlášen (uloženo v localStorage)
   useEffect(() => {
-    const loggedIn = localStorage.getItem(AUTH_STORAGE_KEY) === "true";
+    const loggedIn = localStorage.getItem("isLoggedIn") === "true";
     setIsLoggedIn(loggedIn);
   }, []);
 
@@ -21,7 +24,7 @@ const Header = () => {
     localStorage.removeItem("userName");
     setIsLoggedIn(false);
     console.log("Uživatel odhlášen");
-    navigate("/home");
+    navigate("/");
   };
 
   // Přihlášení

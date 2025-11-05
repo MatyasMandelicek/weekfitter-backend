@@ -29,6 +29,11 @@ const Header = () => {
     navigate("/login");
   };
 
+  // Kliknutím na logo vždy na home
+  const handleLogoClick = () => {
+    navigate("/home");
+  };
+
   return (
     <header className="header">
       <div className="header-content">

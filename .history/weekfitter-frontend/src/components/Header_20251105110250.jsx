@@ -10,7 +10,7 @@ const Header = () => {
 
   // Zkontroluje, jestli je uživatel přihlášen (uloženo v localStorage)
   useEffect(() => {
-    const loggedIn = localStorage.getItem(AUTH_STORAGE_KEY) === "true";
+    const loggedIn = localStorage.getItem(AUTH_STORAGE_KEY) === "true"; // ✅ sjednoceno
     setIsLoggedIn(loggedIn);
   }, []);
 
@@ -21,7 +21,7 @@ const Header = () => {
     localStorage.removeItem("userName");
     setIsLoggedIn(false);
     console.log("Uživatel odhlášen");
-    navigate("/home");
+    navigate("/");
   };
 
   // Přihlášení

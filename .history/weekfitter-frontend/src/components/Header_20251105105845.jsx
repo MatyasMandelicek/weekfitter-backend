@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "../assets/Logo03.png";
 import "../styles/Header.css";
-import { AUTH_STORAGE_KEY } from "../lib/config";
+impo
 
 const Header = () => {
   const navigate = useNavigate();
@@ -10,7 +10,7 @@ const Header = () => {
 
   // Zkontroluje, jestli je uživatel přihlášen (uloženo v localStorage)
   useEffect(() => {
-    const loggedIn = localStorage.getItem(AUTH_STORAGE_KEY) === "true";
+    const loggedIn = localStorage.getItem("isLoggedIn") === "true";
     setIsLoggedIn(loggedIn);
   }, []);
 
@@ -21,7 +21,7 @@ const Header = () => {
     localStorage.removeItem("userName");
     setIsLoggedIn(false);
     console.log("Uživatel odhlášen");
-    navigate("/home");
+    navigate("/");
   };
 
   // Přihlášení
