@@ -30,7 +30,7 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/api/users")
- @CrossOrigin(origins = "http://localhost:3000") // React frontend
+ @CrossOrigin(origins = {"http://localhost:3000", "https://weekfitter.vercel.app"}) // React frontend
 public class UserController {
 
     @Autowired

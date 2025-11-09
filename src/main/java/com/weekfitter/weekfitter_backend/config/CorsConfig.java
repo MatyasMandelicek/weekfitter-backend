@@ -10,8 +10,8 @@ import java.util.List;
 
 /**
  * Konfigurace CORS (Cross-Origin Resource Sharing).
- * Umožňuje bezpečnou komunikaci mezi frontendem (React na Vercelu)
- * a backendem (Spring Boot na Renderu).
+ * 
+ * Umožňuje frontendové části (např. React aplikaci) komunikovat s API backendu.
  */
 @Configuration
 public class CorsConfig {
@@ -20,8 +20,12 @@ public class CorsConfig {
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
 
-        // Povolený původ (frontend aplikace)
-        config.setAllowedOrigins(List.of("http://localhost:3000", "https://weekfitter-frontend.vercel.app/"));
+        // Povolené původy (produkce + preview + lokální vývoj)
+        config.setAllowedOriginPatterns(List.of(
+                "https://*.vercel.app",
+                "https://weekfitter.vercel.app",
+                "http://localhost:3000"
+        ));
 
         // Povolené HTTP metody
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
@@ -31,6 +35,8 @@ public class CorsConfig {
 
         // Povolení přenosu cookies / autentizace
         config.setAllowCredentials(true);
+
+        config.setExposedHeaders(List.of("Authorization", "Content-Type"));
 
         // Aplikace konfigurace na všechny endpointy
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

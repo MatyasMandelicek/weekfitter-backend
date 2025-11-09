@@ -15,12 +15,11 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
-
 /**
  * Controller třída zajišťující REST API pro práci s uživatelskými událostmi v kalendáři.
- * 
+ *
  * Poskytuje CRUD operace (Create, Read, Update, Delete) a logiku pro propojení událostí
- * s notifikačním systémem. 
+ * s notifikačním systémem.
  *
  * Notifikace se vytvářejí při přidání události, aktualizují při přesunutí
  * (např. pomocí drag & drop v kalendáři) a odstraňují při smazání události.
@@ -46,10 +45,8 @@ public class CalendarEventController {
     }
 
     /**
-     * Načte všechny události přihlášeného uživatele podle jeho e-mailu.
-     * 
-     * @param email e-mail uživatele
-     * @return seznam všech událostí daného uživatele
+     * Načte všechny události přihlášeného uživatele podle jeho e-mailu
+     * včetně nastavených notifikací.
      */
     @GetMapping
     public ResponseEntity<?> getEventsByUser(@RequestParam String email) {
@@ -59,12 +56,20 @@ public class CalendarEventController {
         }
 
         List<CalendarEvent> events = calendarEventService.getEventsByUser(userOpt.get());
-        return ResponseEntity.ok(events);
+
+        // Každou událost doplníme o seznam notifikací (offsetů v minutách)
+        List<EventResponse> response = new ArrayList<>();
+        for (CalendarEvent e : events) {
+            List<Integer> notificationOffsets = notificationService.getNotificationOffsetsForEvent(e);
+            response.add(mapEntityToResponse(e, notificationOffsets));
+        }
+
+        return ResponseEntity.ok(response);
     }
 
     /**
      * Vytvoří novou událost pro daného uživatele a případně k ní založí notifikace.
-     * 
+     *
      * Logika:
      * - ověří, že uživatel existuje,
      * - uloží novou událost do databáze,
@@ -113,7 +118,7 @@ public class CalendarEventController {
 
     /**
      * Vrátí detail jedné konkrétní události podle jejího ID.
-     * 
+     *
      * @param id identifikátor události
      * @return detailní data o události
      */
@@ -171,7 +176,7 @@ public class CalendarEventController {
 
             // NOTIFIKACE
             if (request.getNotifications() != null) {
-                // Frontend poslál nové notifikace - přemapujeme je
+                // Frontend poslal nové notifikace - přemapujeme je
                 notificationService.deleteByEvent(updated.getId());
 
                 if (!request.getNotifications().isEmpty() && updated.getStartTime() != null) {
@@ -233,6 +238,26 @@ public class CalendarEventController {
     }
 
     /**
+     * DTO pro vrácení události včetně nastavených notifikací.
+     */
+    @Data
+    static class EventResponse {
+        private UUID id;
+        private String title;
+        private String description;
+        private LocalDateTime startTime;
+        private LocalDateTime endTime;
+        private ActivityType category;
+        private SportType sportType;
+        private Boolean allDay;
+        private Double duration;
+        private Double distance;
+        private String sportDescription;
+        private String filePath;
+        private List<Integer> notifications; // minuty před začátkem
+    }
+
+    /**
      * Pomocná metoda pro převod dat z DTO na entitu CalendarEvent.
      */
     private static CalendarEvent mapRequestToEntity(EventRequest r) {
@@ -250,5 +275,26 @@ public class CalendarEventController {
         e.setSportDescription(r.getSportDescription());
         e.setFilePath(r.getFilePath());
         return e;
+    }
+
+    /**
+     * Pomocná metoda pro převod entity CalendarEvent na DTO EventResponse.
+     */
+    private static EventResponse mapEntityToResponse(CalendarEvent e, List<Integer> notifications) {
+        EventResponse r = new EventResponse();
+        r.setId(e.getId());
+        r.setTitle(e.getTitle());
+        r.setDescription(e.getDescription());
+        r.setStartTime(e.getStartTime());
+        r.setEndTime(e.getEndTime());
+        r.setCategory(e.getCategory());
+        r.setSportType(e.getSportType());
+        r.setAllDay(e.isAllDay());
+        r.setDuration(e.getDuration());
+        r.setDistance(e.getDistance());
+        r.setSportDescription(e.getSportDescription());
+        r.setFilePath(e.getFilePath());
+        r.setNotifications(notifications);
+        return r;
     }
 }

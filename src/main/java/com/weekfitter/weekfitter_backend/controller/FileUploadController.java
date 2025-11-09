@@ -13,7 +13,7 @@ import java.nio.file.*;
  */
 @RestController
 @RequestMapping("/api/files")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {"http://localhost:3000", "https://weekfitter.vercel.app"})
 public class FileUploadController {
 
     /** Cílový adresář pro ukládání souborů. */
