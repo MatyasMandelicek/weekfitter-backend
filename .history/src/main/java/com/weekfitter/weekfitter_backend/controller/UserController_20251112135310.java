@@ -110,36 +110,37 @@ public class UserController {
     /**
      * Aktualizuje profil uživatele (kromě hesla).
      */
-    @PutMapping("/profile")
-    public ResponseEntity<?> updateUserProfile(@RequestParam String email, @RequestBody Map<String, String> data) {
-        Optional<User> userOpt = userRepository.findByEmail(email);
-        if (userOpt.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        User user = userOpt.get();
-
-        if (data.containsKey("firstName")) user.setFirstName(data.get("firstName"));
-        if (data.containsKey("lastName")) user.setLastName(data.get("lastName"));
-        if (data.containsKey("birthDate") && data.get("birthDate") != null && !data.get("birthDate").isEmpty()) {
-            user.setBirthDate(LocalDate.parse(data.get("birthDate")));
-        }
-
-        if (data.containsKey("gender") && data.get("gender") != null && !data.get("gender").isEmpty()) {
-            try {
-                user.setGender(Gender.valueOf(data.get("gender")));
-            } catch (IllegalArgumentException e) {
-                System.out.println("Neznámá hodnota pohlaví: " + data.get("gender"));
-            }
-        }
-
-        if (data.containsKey("photo") && data.get("photo") != null && !data.get("photo").isEmpty()) {
-            user.setPhoto(data.get("photo"));
-        }
-
-        userRepository.save(user);
-        return ResponseEntity.ok(user);
+@PutMapping("/profile")
+public ResponseEntity<?> updateUserProfile(@RequestParam String email, @RequestBody Map<String, String> data) {
+    Optional<User> userOpt = userRepository.findByEmail(email);
+    if (userOpt.isEmpty()) {
+        return ResponseEntity.notFound().build();
     }
+
+    User user = userOpt.get();
+
+    if (data.containsKey("firstName")) user.setFirstName(data.get("firstName"));
+    if (data.containsKey("lastName")) user.setLastName(data.get("lastName"));
+    if (data.containsKey("birthDate") && data.get("birthDate") != null && !data.get("birthDate").isEmpty()) {
+        user.setBirthDate(LocalDate.parse(data.get("birthDate")));
+    }
+
+    if (data.containsKey("gender") && data.get("gender") != null && !data.get("gender").isEmpty()) {
+        try {
+            user.setGender(Gender.valueOf(data.get("gender")));
+        } catch (IllegalArgumentException e) {
+            System.out.println("Neznámá hodnota pohlaví: " + data.get("gender"));
+        }
+    }
+
+    // 🟢 DOPLNĚNÁ ČÁST – uloží fotku, pokud přijde z frontendu
+    if (data.containsKey("photo") && data.get("photo") != null && !data.get("photo").isEmpty()) {
+        user.setPhoto(data.get("photo"));
+    }
+
+    userRepository.save(user);
+    return ResponseEntity.ok(user);
+}
 
 
     /**

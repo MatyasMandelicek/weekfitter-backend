@@ -133,14 +133,9 @@ public class UserController {
             }
         }
 
-        if (data.containsKey("photo") && data.get("photo") != null && !data.get("photo").isEmpty()) {
-            user.setPhoto(data.get("photo"));
-        }
-
         userRepository.save(user);
         return ResponseEntity.ok(user);
     }
-
 
     /**
      * Umožňuje nahrání nebo změnu profilové fotografie uživatele.

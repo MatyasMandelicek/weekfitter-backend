@@ -133,6 +133,7 @@ public class UserController {
             }
         }
 
+        // 🟢 DOPLNĚNÁ ČÁST – uloží fotku, pokud přijde z frontendu
         if (data.containsKey("photo") && data.get("photo") != null && !data.get("photo").isEmpty()) {
             user.setPhoto(data.get("photo"));
         }
