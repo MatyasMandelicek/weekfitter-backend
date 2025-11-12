@@ -189,6 +189,7 @@ public class CalendarEventController {
                             notificationService.createNotification(updated, notifyAt, type);
                         }
                     }
+
                 }
             } else {
                 // Drag & drop scénář - přepočítáme časy stávajících notifikací

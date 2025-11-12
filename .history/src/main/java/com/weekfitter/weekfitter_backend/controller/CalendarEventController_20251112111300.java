@@ -2,7 +2,6 @@ package com.weekfitter.weekfitter_backend.controller;
 
 import com.weekfitter.weekfitter_backend.model.ActivityType;
 import com.weekfitter.weekfitter_backend.model.CalendarEvent;
-import com.weekfitter.weekfitter_backend.model.NotificationType;
 import com.weekfitter.weekfitter_backend.model.SportType;
 import com.weekfitter.weekfitter_backend.model.User;
 import com.weekfitter.weekfitter_backend.repository.CalendarEventRepository;
@@ -103,9 +102,8 @@ public class CalendarEventController {
                 if (saved.getStartTime() != null) {
                     for (Integer minutes : request.getNotifications()) {
                         if (minutes != null && minutes > 0) {
-                            NotificationType type = NotificationType.fromMinutes(minutes);
                             LocalDateTime notifyAt = saved.getStartTime().minusMinutes(minutes.longValue());
-                            notificationService.createNotification(saved, notifyAt, type);
+                            notificationService.createNotification(saved, notifyAt);
                         }
                     }
                 }
@@ -184,9 +182,8 @@ public class CalendarEventController {
                 if (!request.getNotifications().isEmpty() && updated.getStartTime() != null) {
                     for (Integer minutes : request.getNotifications()) {
                         if (minutes != null && minutes > 0) {
-                            NotificationType type = NotificationType.fromMinutes(minutes);
                             LocalDateTime notifyAt = updated.getStartTime().minusMinutes(minutes.longValue());
-                            notificationService.createNotification(updated, notifyAt, type);
+                            notificationService.createNotification(updated, notifyAt);
                         }
                     }
                 }

@@ -32,21 +32,21 @@ public class NotificationService {
     /**
      * Vytvoří novou notifikaci k dané události.
      */
-    public void createNotification(CalendarEvent event, LocalDateTime notifyAt, NotificationType type) {
-        if (event.getUser() == null) return;
+public void createNotification(CalendarEvent event, LocalDateTime notifyAt, NotificationType type) {
+    if (event.getUser() == null) return;
 
-        Notification notification = Notification.builder()
-                .event(event)
-                .user(event.getUser())
-                .notifyAt(notifyAt)
-                .notificationType(type)
-                .sent(false)
-                .build();
+    Notification notification = Notification.builder()
+            .event(event)
+            .user(event.getUser())
+            .notifyAt(notifyAt)
+            .notificationType(type)
+            .sent(false)
+            .build();
 
-        notificationRepository.save(notification);
-        log.info("Vytvořena notifikace typu {} pro uživatele {} (odeslání v {})",
-                type, event.getUser().getEmail(), notifyAt);
-    }
+    notificationRepository.save(notification);
+    log.info("Vytvořena notifikace typu {} pro uživatele {} (odeslání v {})",
+            type, event.getUser().getEmail(), notifyAt);
+}
 
 
     /**

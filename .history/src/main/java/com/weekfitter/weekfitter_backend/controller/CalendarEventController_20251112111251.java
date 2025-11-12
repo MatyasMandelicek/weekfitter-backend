@@ -184,9 +184,8 @@ public class CalendarEventController {
                 if (!request.getNotifications().isEmpty() && updated.getStartTime() != null) {
                     for (Integer minutes : request.getNotifications()) {
                         if (minutes != null && minutes > 0) {
-                            NotificationType type = NotificationType.fromMinutes(minutes);
                             LocalDateTime notifyAt = updated.getStartTime().minusMinutes(minutes.longValue());
-                            notificationService.createNotification(updated, notifyAt, type);
+                            notificationService.createNotification(updated, notifyAt);
                         }
                     }
                 }

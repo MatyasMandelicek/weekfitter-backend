@@ -182,13 +182,14 @@ public class CalendarEventController {
                 notificationService.deleteByEvent(updated.getId());
 
                 if (!request.getNotifications().isEmpty() && updated.getStartTime() != null) {
-                    for (Integer minutes : request.getNotifications()) {
-                        if (minutes != null && minutes > 0) {
-                            NotificationType type = NotificationType.fromMinutes(minutes);
-                            LocalDateTime notifyAt = updated.getStartTime().minusMinutes(minutes.longValue());
-                            notificationService.createNotification(updated, notifyAt, type);
-                        }
-                    }
+for (Integer minutes : request.getNotifications()) {
+    if (minutes != null && minutes > 0) {
+        NotificationType type = NotificationType.fromMinutes(minutes);
+        LocalDateTime notifyAt = updated.getStartTime().minusMinutes(minutes.longValue());
+        notificationService.createNotification(updated, notifyAt, type);
+    }
+}
+
                 }
             } else {
                 // Drag & drop scénář - přepočítáme časy stávajících notifikací

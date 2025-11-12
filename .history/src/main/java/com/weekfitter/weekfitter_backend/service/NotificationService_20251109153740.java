@@ -1,7 +1,6 @@
 package com.weekfitter.weekfitter_backend.service;
 
 import com.weekfitter.weekfitter_backend.model.Notification;
-import com.weekfitter.weekfitter_backend.model.NotificationType;
 import com.weekfitter.weekfitter_backend.repository.NotificationRepository;
 import com.weekfitter.weekfitter_backend.model.CalendarEvent;
 import lombok.RequiredArgsConstructor;
@@ -32,22 +31,20 @@ public class NotificationService {
     /**
      * Vytvoří novou notifikaci k dané události.
      */
-    public void createNotification(CalendarEvent event, LocalDateTime notifyAt, NotificationType type) {
+    public void createNotification(CalendarEvent event, LocalDateTime notifyAt) {
         if (event.getUser() == null) return;
 
         Notification notification = Notification.builder()
                 .event(event)
                 .user(event.getUser())
                 .notifyAt(notifyAt)
-                .notificationType(type)
                 .sent(false)
                 .build();
 
         notificationRepository.save(notification);
-        log.info("Vytvořena notifikace typu {} pro uživatele {} (odeslání v {})",
-                type, event.getUser().getEmail(), notifyAt);
+        log.info("Vytvořena notifikace pro uživatele {} (odeslání v {})",
+                event.getUser().getEmail(), notifyAt);
     }
-
 
     /**
      * Odstraní všechny notifikace navázané na konkrétní událost.

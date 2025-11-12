@@ -39,9 +39,8 @@ public class Notification {
     /** Příznak, zda již byla notifikace odeslána. */
     private boolean sent;
 
-    /** Typ notifikace (5 minut, 1 den apod.) */
-    @Enumerated(EnumType.STRING)
-    @Column(name = "notification_type")
-    private NotificationType notificationType;
+@Enumerated(EnumType.STRING)
+@Column(name = "notification_type")
+private NotificationType notificationType;
 
 }
