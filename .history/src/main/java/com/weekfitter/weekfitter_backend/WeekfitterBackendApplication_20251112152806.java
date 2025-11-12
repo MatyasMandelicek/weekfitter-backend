@@ -26,9 +26,9 @@ public class WeekfitterBackendApplication {
     public void warmUp() {
         try {
             entityManager.createQuery("SELECT 1").getSingleResult();
-            System.out.println("Database connection pre-warmed.");
+            System.out.println("✅ Database connection pre-warmed.");
         } catch (Exception e) {
-            System.err.println("Database warm-up failed: " + e.getMessage());
+            System.err.println("⚠️ Database warm-up failed: " + e.getMessage());
         }
     }
 }
