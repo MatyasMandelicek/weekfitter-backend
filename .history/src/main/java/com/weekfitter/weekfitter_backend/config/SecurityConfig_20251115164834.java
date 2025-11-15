@@ -33,7 +33,7 @@ public class SecurityConfig {
                         "/api/users/upload-photo",     
                         "/api/users/photo/**",         
                         "/api/events/**",
-                        "/api/health",
+                        "/api/files/**",
                         "/error"
                     ).permitAll()
                     .anyRequest().authenticated()                    

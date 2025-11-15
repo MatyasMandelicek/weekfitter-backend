@@ -24,18 +24,19 @@ public class SecurityConfig {
 
                 // Povolené a chráněné endpointy
                 .authorizeHttpRequests(auth -> auth
-                    .requestMatchers(
-                        "/api/users/register",
-                        "/api/users/login",
-                        "/api/users/forgot-password",
-                        "/api/users/reset-password",
-                        "/api/users/profile",          
-                        "/api/users/upload-photo",     
-                        "/api/users/photo/**",         
-                        "/api/events/**",
-                        "/api/health",
-                        "/error"
-                    ).permitAll()
+                .requestMatchers(
+                    "/api/users/register",
+                    "/api/users/login",
+                    "/api/users/forgot-password",
+                    "/api/users/reset-password",
+                    "/api/users/profile",          
+                    "/api/users/upload-photo",     
+                    "/api/users/photo/**",         
+                    "/api/events/**",
+                    "/api/health",
+                    "/error"
+                ).permitAll()
+
                     .anyRequest().authenticated()                    
                 )
 

@@ -36,6 +36,7 @@ public class SecurityConfig {
                         "/api/health",
                         "/error"
                     ).permitAll()
+
                     .anyRequest().authenticated()                    
                 )
 
