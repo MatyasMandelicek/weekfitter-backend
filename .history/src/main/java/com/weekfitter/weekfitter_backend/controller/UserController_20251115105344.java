@@ -5,11 +5,19 @@ import com.weekfitter.weekfitter_backend.repository.UserRepository;
 import com.weekfitter.weekfitter_backend.model.Gender;
 import com.weekfitter.weekfitter_backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.file.*;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Controller zajišťující správu uživatelských účtů, autentizaci a profilové informace.
@@ -30,6 +38,18 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
+
+    private final Path uploadDir = Paths.get("uploads/user_photos");
+
+    public UserController() {
+        try {
+            if (!Files.exists(uploadDir)) {
+                Files.createDirectories(uploadDir);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Nelze vytvořit složku pro fotky uživatelů.", e);
+        }
+    }
 
     // AUTENTIZACE
 
@@ -119,5 +139,27 @@ public class UserController {
 
         userRepository.save(user);
         return ResponseEntity.ok(user);
+    }
+
+
+    /**
+     * Vrací uloženou profilovou fotografii uživatele podle názvu souboru.
+     */
+    @GetMapping("/photo/{filename:.+}")
+    public ResponseEntity<byte[]> getUserPhoto(@PathVariable String filename) {
+        try {
+            Path path = uploadDir.resolve(filename);
+            if (!Files.exists(path)) {
+                return ResponseEntity.notFound().build();
+            }
+            byte[] bytes = Files.readAllBytes(path);
+            String mime = Files.probeContentType(path);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
+                    .contentType(MediaType.parseMediaType(mime != null ? mime : "image/jpeg"))
+                    .body(bytes);
+        } catch (IOException e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 }

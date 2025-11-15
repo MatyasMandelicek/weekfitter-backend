@@ -7,6 +7,8 @@ import com.weekfitter.weekfitter_backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.io.IOException;
+import java.nio.file.*;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
@@ -30,6 +32,18 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
+
+    private final Path uploadDir = Paths.get("uploads/user_photos");
+
+    public UserController() {
+        try {
+            if (!Files.exists(uploadDir)) {
+                Files.createDirectories(uploadDir);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Nelze vytvořit složku pro fotky uživatelů.", e);
+        }
+    }
 
     // AUTENTIZACE
 
