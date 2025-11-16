@@ -50,15 +50,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
          * Pokud by filtr běžel nad login/registrací, Spring by ztratil request body,
          * což způsobovalo chybu: rawPassword == null.
          */
-        if (uri.equals("/api/users/login") ||
-            uri.equals("/api/users/register") ||
-            uri.startsWith("/api/users/forgot-password") ||
-            uri.startsWith("/api/users/reset-password") ||
-            uri.equals("/api/health")) {
+if (uri.equals("/api/users/login") ||
+    uri.equals("/api/users/register") ||
+    uri.startsWith("/api/users/forgot-password") ||
+    uri.startsWith("/api/users/reset-password") ||
+    uri.equals("/api/health")) {
 
-            filterChain.doFilter(request, response);
-            return;
-        }
+    filterChain.doFilter(request, response);
+    return;
+}
 
         /** Čtení HTTP hlavičky Authorization. */
         final String authHeader = request.getHeader("Authorization");
