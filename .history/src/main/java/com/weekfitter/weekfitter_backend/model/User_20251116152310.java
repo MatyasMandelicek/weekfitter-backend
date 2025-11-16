@@ -69,6 +69,7 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+
     /** Volitelné datum narození. */
     @Column(name = "birth_date")
     private LocalDate birthDate;

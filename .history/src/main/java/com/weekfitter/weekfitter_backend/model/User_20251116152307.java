@@ -61,13 +61,14 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    /**
-     * Heslo uložené v podobě hashované hodnoty (BCrypt).
-     * Přijímá se z frontendu, ale nikdy se neposílá zpět.
-     */
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @Column(nullable = false)
-    private String password;
+/**
+ * Heslo uložené v podobě hashované hodnoty (BCrypt).
+ * Přijímá se z frontendu, ale nikdy se neposílá zpět.
+ */
+@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+@Column(nullable = false)
+private String password;
+
 
     /** Volitelné datum narození. */
     @Column(name = "birth_date")
