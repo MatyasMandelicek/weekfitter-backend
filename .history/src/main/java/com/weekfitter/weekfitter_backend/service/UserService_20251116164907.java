@@ -38,24 +38,26 @@ public class UserService {
 
     /** Registruje nového uživatele. */
     public User registerUser(User user) {
+if (user.getPassword() == null || user.getPassword().isBlank()) {
+    throw new IllegalArgumentException("Password cannot be empty");
+}
 
-        if (user.getPassword() == null || user.getPassword().isBlank()) {
-            throw new IllegalArgumentException("Heslo nemůže být prázdné.");
-        }
 
         try {
             // Zahashování hesla
             user.setPassword(passwordEncoder.encode(user.getPassword()));
 
             // Výchozí avatar podle pohlaví
-            if (user.getGender() == Gender.FEMALE) {
-                user.setPhoto("/avatars/female_avatar.png");
-            } else if (user.getGender() == Gender.MALE) {
-                user.setPhoto("/avatars/male_avatar.png");
-            } else {
-                user.setPhoto("/avatars/neutral_avatar.png");
+            if (user.getPhoto() == null || user.getPhoto().isEmpty()) {
+                if (user.getGender() == Gender.FEMALE) {
+                    user.setPhoto("/avatars/female_avatar.png");
+                } else if (user.getGender() == Gender.MALE) {
+                    user.setPhoto("/avatars/male_avatar.png");
+                } else {
+                    user.setPhoto("/avatars/neutral_avatar.png");
+                }
             }
-            
+
             return userRepository.save(user);
 
         } catch (Exception e) {

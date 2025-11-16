@@ -55,7 +55,8 @@ public class UserService {
             } else {
                 user.setPhoto("/avatars/neutral_avatar.png");
             }
-            
+
+
             return userRepository.save(user);
 
         } catch (Exception e) {

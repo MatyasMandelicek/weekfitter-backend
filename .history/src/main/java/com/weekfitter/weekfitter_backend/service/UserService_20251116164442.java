@@ -39,29 +39,21 @@ public class UserService {
     /** Registruje nového uživatele. */
     public User registerUser(User user) {
 
-        if (user.getPassword() == null || user.getPassword().isBlank()) {
-            throw new IllegalArgumentException("Heslo nemůže být prázdné.");
-        }
+        // Zahashování hesla
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        try {
-            // Zahashování hesla
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-            // Výchozí avatar podle pohlaví
+        // Výchozí avatar podle pohlaví
+        if (user.getPhoto() == null || user.getPhoto().isEmpty()) {
             if (user.getGender() == Gender.FEMALE) {
-                user.setPhoto("/avatars/female_avatar.png");
+                user.setPhoto("/avatars/default-avatar-female.png");
             } else if (user.getGender() == Gender.MALE) {
-                user.setPhoto("/avatars/male_avatar.png");
+                user.setPhoto("/assets/default-avatar.png");
             } else {
-                user.setPhoto("/avatars/neutral_avatar.png");
+                user.setPhoto("/assets/default-avatar-other.png");
             }
-            
-            return userRepository.save(user);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
         }
+
+        return userRepository.save(user);
     }
 
     /** Vrátí uživatele podle e-mailu, nebo vyhodí výjimku. */

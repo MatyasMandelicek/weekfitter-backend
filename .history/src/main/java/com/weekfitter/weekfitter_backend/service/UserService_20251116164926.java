@@ -40,7 +40,7 @@ public class UserService {
     public User registerUser(User user) {
 
         if (user.getPassword() == null || user.getPassword().isBlank()) {
-            throw new IllegalArgumentException("Heslo nemůže být prázdné.");
+            throw new IllegalArgumentException("Heslo nemůže být prá");
         }
 
         try {
@@ -48,14 +48,16 @@ public class UserService {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
 
             // Výchozí avatar podle pohlaví
-            if (user.getGender() == Gender.FEMALE) {
-                user.setPhoto("/avatars/female_avatar.png");
-            } else if (user.getGender() == Gender.MALE) {
-                user.setPhoto("/avatars/male_avatar.png");
-            } else {
-                user.setPhoto("/avatars/neutral_avatar.png");
+            if (user.getPhoto() == null || user.getPhoto().isEmpty()) {
+                if (user.getGender() == Gender.FEMALE) {
+                    user.setPhoto("/avatars/female_avatar.png");
+                } else if (user.getGender() == Gender.MALE) {
+                    user.setPhoto("/avatars/male_avatar.png");
+                } else {
+                    user.setPhoto("/avatars/neutral_avatar.png");
+                }
             }
-            
+
             return userRepository.save(user);
 
         } catch (Exception e) {

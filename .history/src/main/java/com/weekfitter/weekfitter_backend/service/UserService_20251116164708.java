@@ -37,17 +37,13 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
     /** Registruje nového uživatele. */
-    public User registerUser(User user) {
+public User registerUser(User user) {
+    try {
+        // Zahashování hesla
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        if (user.getPassword() == null || user.getPassword().isBlank()) {
-            throw new IllegalArgumentException("Heslo nemůže být prázdné.");
-        }
-
-        try {
-            // Zahashování hesla
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-            // Výchozí avatar podle pohlaví
+        // Výchozí avatar podle pohlaví
+        if (user.getPhoto() == null || user.getPhoto().isEmpty()) {
             if (user.getGender() == Gender.FEMALE) {
                 user.setPhoto("/avatars/female_avatar.png");
             } else if (user.getGender() == Gender.MALE) {
@@ -55,14 +51,16 @@ public class UserService {
             } else {
                 user.setPhoto("/avatars/neutral_avatar.png");
             }
-            
-            return userRepository.save(user);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
         }
+
+        return userRepository.save(user);
+
+    } catch (Exception e) {
+        e.printStackTrace();  // ← TADY — vypíše nám error do Render logů
+        throw e;
     }
+}
+
 
     /** Vrátí uživatele podle e-mailu, nebo vyhodí výjimku. */
     public User getUserOrThrow(String email) {
