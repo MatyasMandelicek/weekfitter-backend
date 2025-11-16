@@ -1,0 +1,56 @@
+package com.weekfitter.weekfitter_backend.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+/**
+ * Konfigurace zabezpečení aplikace.
+ *
+ * Tato třída definuje způsob zabezpečení REST API pomocí Spring Security.
+ * U REST rozhraní se běžně vypíná CSRF ochrana (používaná hlavně pro formuláře),
+ * endpointy jsou nastavovány jako veřejné nebo chráněné a také se vypínají
+ * výchozí login formuláře či BasicAuth, protože autentizace probíhá vlastní cestou.
+ */
+@Configuration
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                // REST API nevyužívá CSRF
+                .csrf(csrf -> csrf.disable())
+
+                // Povolené a chráněné endpointy
+                .authorizeHttpRequests(auth -> auth
+                    .requestMatchers(
+                        "/api/users/register",
+                        "/api/users/login",
+                        "/api/users/forgot-password",
+                        "/api/users/reset-password",
+                        "/api/users/profile",          
+                        "/api/users/upload-photo",     
+                        "/api/users/photo/**",         
+                        "/api/events/**",
+                        "/api/health",
+                        "/error"
+                    ).permitAll()
+                    .anyRequest().authenticated()                    
+                )
+
+                // Deaktivace výchozího login formuláře                
+                .formLogin(form -> form.disable())
+                .httpBasic(basic -> basic.disable());
+
+        return http.build();
+    }
+
+    /** Bean pro šifrování hesel – používá se v UserService. */
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+}

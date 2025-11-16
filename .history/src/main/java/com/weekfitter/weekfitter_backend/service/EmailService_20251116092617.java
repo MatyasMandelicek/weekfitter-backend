@@ -1,0 +1,117 @@
+package com.weekfitter.weekfitter_backend.service;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+/**
+ * Servisní třída pro odesílání e-mailů (reset hesla, notifikace).
+ *
+ * Namísto klasického SMTP protokolu (který je často blokován hostingy jako Render,
+ * Railway nebo Vercel) využívá moderní Resend API přes HTTPS.
+ *
+ * Výhody:
+ * - vysoká spolehlivost doručení,
+ * - funguje na všech hostinzích,
+ * - není potřeba nastavovat SMTP server nebo výjimky firewallu,
+ * - jednoduchá integrace.
+ */
+@Service
+public class EmailService {
+
+    private static final Logger log = LoggerFactory.getLogger(EmailService.class);
+
+    /** URL endpointu Resend API */
+    private static final String RESEND_URL = "https://api.resend.com/emails";
+
+    /** HttpClient pro odesílání HTTP požadavků. */
+    private final HttpClient httpClient = HttpClient.newHttpClient();
+    private final String apiKey;
+    private final String fromEmail;
+
+    public EmailService(
+            @Value("${RESEND_API_KEY}") String apiKey,
+            @Value("${RESEND_FROM_EMAIL}") String fromEmail
+    ) {
+        this.apiKey = apiKey;
+        this.fromEmail = fromEmail;
+        log.info("EmailService inicializována s FROM: {}", this.fromEmail);
+    }
+
+    /**
+     * Odesílá e-mail s odkazem pro obnovení hesla.
+     *
+     * @param to    cílový e-mail uživatele
+     * @param token resetovací token
+     */
+    public void sendPasswordResetEmail(String to, String token) {
+        String resetLink = "https://weekfitter.vercel.app/reset-password/" + token;
+        String subject = "Obnovení hesla - WeekFitter";
+        String text = "Klikněte na následující odkaz pro obnovení hesla:\n\n" + resetLink;
+        sendEmail(to, subject, text);
+    }
+
+    /**
+     * Odesílá běžnou notifikační zprávu (např. připomenutí události).
+     */
+    public void sendNotificationEmail(String to, String subject, String body) {
+        sendEmail(to, subject, body);
+    }
+
+    /**
+     * Obecná metoda pro odeslání e-mailu přes Resend API.
+     */
+    private void sendEmail(String to, String subject, String body) {
+        try {
+            String json = String.format("""
+                {
+                  "from": "%s",
+                  "to": ["%s"],
+                  "subject": "%s",
+                  "text": "%s"
+                }
+                """,
+                escapeJson(fromEmail),
+                escapeJson(to),
+                escapeJson(subject),
+                escapeJson(body)
+            );
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(RESEND_URL))
+                    .header("Authorization", "Bearer " + apiKey)
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(json))
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() >= 200 && response.statusCode() < 300) {
+                log.info("E-mail úspěšně odeslán na {}", to);
+            } else {
+                log.error("Chyba při odesílání e-mailu ({}): {}", response.statusCode(), response.body());
+            }
+
+        } catch (Exception e) {
+            log.error("Nepodařilo se odeslat e-mail na {}: {}", to, e.getMessage());
+        }
+    }
+
+    /**
+     * Pomocná metoda pro escapování textu do JSON formátu.
+     */
+    private String escapeJson(String value) {
+        if (value == null) return "";
+        return value
+                .replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r");
+    }
+}
