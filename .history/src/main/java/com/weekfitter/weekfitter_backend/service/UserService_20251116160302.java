@@ -5,6 +5,7 @@ import com.weekfitter.weekfitter_backend.model.*;
 import com.weekfitter.weekfitter_backend.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +34,7 @@ public class UserService {
     @Autowired
     private JwtService jwtService;
 
-    /** Encoder pro hashování hesel. */
+    /** BCrypt encoder pro hashování hesel. */
     private PasswordEncoder passwordEncoder;
 
     /** Registruje nového uživatele. */
