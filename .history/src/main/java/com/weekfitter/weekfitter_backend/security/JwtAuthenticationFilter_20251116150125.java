@@ -17,14 +17,16 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 /**
- * JWT autentizační filtr.
+ * JWT autentizační filtr – zpracovává každý HTTP request právě jednou.
  *
- * Provádí:
- * - čtení hlavičky Authorization,
- * - validaci JWT tokenu,
- * - načtení uživatele a vložení autentizace do SecurityContextu.
+ * Úkolem filtru je:
+ * - přeskočit veřejné endpointy (registrace, login, reset hesla),
+ * - zachytit Authorization hlavičku,
+ * - validovat JWT token,
+ * - pokud je token platný → načíst uživatele a vložit autentizaci do SecurityContextu.
  *
- * Spouští se jednou pro každý request (OncePerRequestFilter).
+ * Pokud request neobsahuje token (nebo míří na veřejný endpoint),
+ * filtr pouze pustí požadavek dál bez zásahů.
  */
 @Component
 @RequiredArgsConstructor
@@ -33,7 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     /** Služba pro práci s JWT tokeny (validace, extrakce emailu). */
     private final JwtService jwtService;
 
-    /** Načítání uživatelských údajů pro Spring Security. */
+    /** Načítá uživatelské detaily (Spring Security UserDetails). */
     private final CustomUserDetailsService userDetailsService;
 
     @Override
@@ -43,51 +45,55 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
+        // Získáme URL cestu požadavku
         String path = request.getServletPath();
 
-        /**
-         * Veřejné endpointy – zde se JWT nesmí aplikovat.
-         * Pokud by filtr běžel nad login/registrací, Spring by ztratil request body,
-         * což způsobovalo chybu: rawPassword == null.
-         */
+        // 1) VEŘEJNÉ ENDPOINTY – filtr MUSÍ být přeskočen
+        // Pokud bychom filtr aplikovali na /register nebo /login,
+        // Spring by nedokázal přečíst JSON tělo requestu → heslo == null.
+        //
+        // Tohle byl přesně důvod tvé chyby "rawPassword cannot be null".
+        //
         if (path.startsWith("/api/users/register") ||
             path.startsWith("/api/users/login") ||
             path.startsWith("/api/users/forgot-password") ||
             path.startsWith("/api/users/reset-password") ||
             path.startsWith("/api/health")) {
 
+            // Přeskočíme JWT logiku – request pokračuje rovnou do controlleru
             filterChain.doFilter(request, response);
             return;
         }
 
-        /** Čtení HTTP hlavičky Authorization. */
+        // 2) JWT VALIDACE
+        // --------------------------------------------------------------------
+
+        // Zkusíme získat hodnotu HTTP hlavičky Authorization
         final String authHeader = request.getHeader("Authorization");
 
-        /** Pokud není token přítomen nebo neobsahuje Bearer prefix → pokračujeme dál. */
+        // Chybí hlavička nebo nezačíná na "Bearer " → žádný token → nic neautentizujeme
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        /** Získání tokenu (bez prefixu Bearer). */
+        // Získáme samotný token bez prefixu "Bearer "
         final String jwt = authHeader.substring(7);
 
-        /** Extrakce emailu (subject) z JWT. */
+        // Pokusíme se z tokenu extrahovat email (subject)
         final String userEmail = jwtService.extractEmail(jwt);
 
-        /**
-         * Pokud máme email a zatím není autentizace ve SecurityContextu,
-         * validujeme token a nastavíme přihlášeného uživatele.
-         */
+        // Pokud máme email a zatím není žádný uživatel v SecurityContextu
         if (userEmail != null &&
-                SecurityContextHolder.getContext().getAuthentication() == null) {
+            SecurityContextHolder.getContext().getAuthentication() == null) {
 
+            // Načteme detaily uživatele z DB
             UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
 
-            /** Ověření platnosti tokenu (podpis + expirace). */
+            // Ověříme, zda je JWT token validní (podpis, expirace)
             if (jwtService.isTokenValid(jwt)) {
 
-                /** Vytvoření autentizačního objektu. */
+                // Vytvoříme autentizační objekt pro Spring Security
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails,
@@ -95,15 +101,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 userDetails.getAuthorities()
                         );
 
-                /** Doplnění detailů o requestu. */
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                // Přidáme kontext requestu (IP adresa, User-Agent…)
+                authToken.setDetails(
+                        new WebAuthenticationDetailsSource().buildDetails(request)
+                );
 
-                /** Uložení autentizace – uživatel je považován za přihlášeného. */
+                // Uložíme autentizaci → uživatel je nyní považován za přihlášeného
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
 
-        /** Pokračování v řetězci filtrů. */
+        // Pokračujeme dál v řetězci filtrů (request běží do controlleru)
         filterChain.doFilter(request, response);
     }
 }
