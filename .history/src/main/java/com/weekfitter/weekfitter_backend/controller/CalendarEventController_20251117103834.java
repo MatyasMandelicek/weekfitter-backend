@@ -28,6 +28,7 @@ import java.util.*;
         "http://localhost:3000",
         "https://*.vercel.app"
 })
+
  @RestController
 @RequestMapping("/api/events")
 public class CalendarEventController {

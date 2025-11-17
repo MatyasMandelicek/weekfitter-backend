@@ -23,12 +23,7 @@ import java.util.*;
  * Poskytuje funkce pro vytváření, načítání, aktualizaci a mazání událostí (CRUD).
  * Identita uživatele je ověřena pomocí JWT tokenu.
  */
-@CrossOrigin(origins = {
-        "https://weekfitter.vercel.app",
-        "http://localhost:3000",
-        "https://*.vercel.app"
-})
- @RestController
+@RestController
 @RequestMapping("/api/events")
 public class CalendarEventController {
 

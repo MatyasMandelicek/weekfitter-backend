@@ -24,12 +24,13 @@ import java.util.*;
  * Identita uživatele je ověřena pomocí JWT tokenu.
  */
 @CrossOrigin(origins = {
-        "https://weekfitter.vercel.app",
-        "http://localhost:3000",
-        "https://*.vercel.app"
+    "https://weekfitter.vercel.app",
+    "http://localhost:3000"
 })
- @RestController
+
+@RestController
 @RequestMapping("/api/events")
+@CrossOrigin(origins = "*")
 public class CalendarEventController {
 
     private final NotificationService notificationService;

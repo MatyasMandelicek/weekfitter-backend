@@ -16,62 +16,50 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-
 /**
- * Hlavní bezpečnostní konfigurace aplikace.
+ * Bezpečnostní konfigurace aplikace WeekFitter.
  *
- * - zapíná podporu CORS (nutné pro komunikaci s front-endem),
- * - vypíná CSRF (REST API ho nepotřebuje),
- * - nastavuje stateless režim kvůli JWT,
- * - definuje veřejné a chráněné endpointy,
- * - přidává náš JWT filtr,
- * - vypíná klasické formLogin / httpBasic.
+ * Zajišťuje:
+ * - JWT autentizaci (stateless přístup),
+ * - povolení veřejných endpointů (login, registrace, reset hesla),
+ * - ochranu všech ostatních API endpointů,
+ * - integraci JwtAuthenticationFilter do řetězce filtrů.
  */
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    /** Filtr, který zpracovává JWT token z Authorization headeru. */
+    /** Vlastní JWT autentizační filtr, který zpracovává requesty. */
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    /** Načítání detailů uživatele pro ověřování. */
+    /** Služba, která Spring Security poskytuje informace o uživateli. */
     private final CustomUserDetailsService customUserDetailsService;
 
     /**
      * Hlavní konfigurace Spring Security.
+     *
+     * - vypíná CSRF (pro REST API je zbytečné),
+     * - nastavuje bezstavový režim (stateless),
+     * - definuje veřejné endpointy,
+     * - přidává náš vlastní JWT filtr před UsernamePasswordAuthenticationFilter,
+     * - vypíná Basic Auth a login formulář.
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
         http
-                /**
-                 * Zapnutí CORS ve Spring Security.
-                 * Díky tomu se správně použije CorsFilter z třídy CorsConfig.
-                 * Bez toho by preflight (OPTIONS) requesty padaly.
-                 */
-                .cors(cors -> {})
-
-                /**
-                 * CSRF vypínáme — REST API nepoužívá cookie-based session,
-                 * takže CSRF tokeny nedávají smysl.
-                 */
+                // REST API nepoužívá CSRF tokeny
+                .cors()
+                
                 .csrf(csrf -> csrf.disable())
 
-                /**
-                 * Aplikace funguje kompletně bez HTTP session (stateless).
-                 * Všechno řízení přihlášení obstarává JWT.
-                 */
+                // API je stateless – nepoužívá HTTP Session
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
-                /**
-                 * Definování, které endpointy jsou veřejné
-                 * a které vyžadují JWT token.
-                 */
+                // Nastavení přístupů
                 .authorizeHttpRequests(auth -> auth
-
-                        // Veřejné endpointy (bez JWT)
+                        // Veřejné endpointy, které NEVYŽADUJÍ JWT token
                         .requestMatchers(
                                 "/api/users/register",
                                 "/api/users/login",
@@ -81,37 +69,27 @@ public class SecurityConfig {
                                 "/error"
                         ).permitAll()
 
-                        // Všechno ostatní je chráněné (vyžaduje platný JWT)
+                        // Všechno ostatní vyžaduje autentizaci
                         .anyRequest().authenticated()
                 )
 
-                /**
-                 * Zde určujeme, jak se má ověřovat uživatel:
-                 * - načíst z DB (CustomUserDetailsService),
-                 * - porovnat heslo pomocí BCrypt.
-                 */
+                // Authentication Provider → práce s detaily uživatelů a heslem
                 .authenticationProvider(authenticationProvider())
 
-                /**
-                 * Vložíme náš JWT filtr do řetězce ještě PŘED
-                 * UsernamePasswordAuthenticationFilter, aby
-                 * se nejdřív pokusil ověřit token.
-                 */
+                // Přidání JWT filtru před standardní Spring Security filtr
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 
-                /**
-                 * Nepoužíváme žádné formuláře ani základní HTTP login.
-                 * Autentizace je řešena pouze přes JWT.
-                 */
+                // Nepotřebujeme formulář pro login
                 .formLogin(form -> form.disable())
+
+                // Nepoužíváme základní HTTP autentizaci
                 .httpBasic(basic -> basic.disable());
 
         return http.build();
     }
 
     /**
-     * AuthenticationManager — zajišťuje přihlášení pomocí CustomUserDetailsService
-     * a ověření hesla.
+     * Správce autentizace – používá se při loginu.
      */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
@@ -120,9 +98,9 @@ public class SecurityConfig {
     }
 
     /**
-     * AuthenticationProvider říká Springu:
-     * - kde má hledat uživatele (UserDetailsService),
-     * - jak má ověřit heslo (BCrypt).
+     * AuthenticationProvider říká Spring Security:
+     * - jak získat uživatele (CustomUserDetailsService),
+     * - jak ověřit heslo (BCrypt).
      */
     @Bean
     public AuthenticationProvider authenticationProvider() {
@@ -135,8 +113,7 @@ public class SecurityConfig {
     }
 
     /**
-     * BCrypt encoder — stejný používáme na registraci i login,
-     * aby porovnání hashů sedělo.
+     * BCrypt encoder – stejný pro registraci i login.
      */
     @Bean
     public PasswordEncoder passwordEncoder() {

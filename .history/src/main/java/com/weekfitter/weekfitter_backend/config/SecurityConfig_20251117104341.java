@@ -16,7 +16,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-
 /**
  * Hlavní bezpečnostní konfigurace aplikace.
  *
@@ -49,7 +48,7 @@ public class SecurityConfig {
                  * Díky tomu se správně použije CorsFilter z třídy CorsConfig.
                  * Bez toho by preflight (OPTIONS) requesty padaly.
                  */
-                .cors(cors -> {})
+                .cors()
 
                 /**
                  * CSRF vypínáme — REST API nepoužívá cookie-based session,
