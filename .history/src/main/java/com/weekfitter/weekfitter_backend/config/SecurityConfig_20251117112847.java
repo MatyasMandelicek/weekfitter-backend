@@ -93,7 +93,6 @@ public class SecurityConfig {
                  * - porovnat heslo pomocí BCrypt.
                  */
                 .authenticationProvider(authenticationProvider())
-                .userDetailsService(customUserDetailsService)
 
                 /**
                  * Vložíme náš JWT filtr do řetězce ještě PŘED
