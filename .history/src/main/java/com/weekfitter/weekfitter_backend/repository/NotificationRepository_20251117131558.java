@@ -31,7 +31,7 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
      * Tato metoda se typicky používá ve "scheduleru", který pravidelně kontroluje,
      * zda má odeslat nové notifikace.
      */
-    @Query("SELECT n FROM Notification n WHERE n.sent = false AND n.notifyAt <= :now")
+    @Query("SELECT n FROM Notification n WHERE n.sent = false AND n.notifyAt <= :now ")
     List<Notification> findPendingNotifications(LocalDateTime now);
 
     /**

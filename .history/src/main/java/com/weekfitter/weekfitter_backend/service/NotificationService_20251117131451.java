@@ -137,6 +137,7 @@ public class NotificationService {
 
                 CalendarEvent e = n.getEvent();
 
+
                 String subject = "Upozornění: " + e.getTitle();
                 String message =
                         "Připomenutí vaší aktivity:\n\n" +
