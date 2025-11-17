@@ -72,7 +72,7 @@ public class User {
 
     /** Volitelné datum narození. */
     @Column(name = "birth_date")
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat()
     private LocalDate birthDate;
 
     /** Cesta k profilové fotografii. */

@@ -1,6 +1,5 @@
 package com.weekfitter.weekfitter_backend.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -72,7 +71,7 @@ public class User {
 
     /** Volitelné datum narození. */
     @Column(name = "birth_date")
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    
     private LocalDate birthDate;
 
     /** Cesta k profilové fotografii. */
