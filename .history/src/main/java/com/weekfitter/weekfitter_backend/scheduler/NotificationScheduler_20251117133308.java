@@ -58,16 +58,16 @@ public class NotificationScheduler {
      *
      * V případě chyby se chyba zaloguje, ale plánovač běží dál.
      */
-    @Scheduled(fixedRate = 30000)
-    public void checkNotifications() {
-        // Drobný log pro kontrolu, že scheduler opravdu běží
-        log.debug("[SCHEDULER] Periodická kontrola notifikací...");
+@Scheduled(fixedRate = 30000)
+public void checkNotifications() {
+    // Drobný log pro kontrolu, že scheduler opravdu běží
+    log.debug("[SCHEDULER] Periodická kontrola notifikací...");
 
-        try {
-            notificationService.sendPendingNotifications();
-        } catch (Exception e) {
-            log.error("[SCHEDULER-ERROR] Chyba při běhu plánovače notifikací: {}", e.getMessage(), e);
-        }
+    try {
+        notificationService.sendPendingNotifications();
+    } catch (Exception e) {
+        log.error("[SCHEDULER-ERROR] Chyba při běhu plánovače notifikací: {}", e.getMessage(), e);
     }
+}
 
 }
